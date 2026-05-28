@@ -7,21 +7,28 @@ import { AppComponent } from './app/app.component';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { getAuth, provideAuth } from '@angular/fire/auth';
 import { getDatabase, provideDatabase } from '@angular/fire/database';
+import { getFirestore, provideFirestore } from '@angular/fire/firestore';
+import { environment } from './environments/environment';
 
 bootstrapApplication(AppComponent, {
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideIonicAngular(),
-    provideRouter(routes, withPreloading(PreloadAllModules)), provideFirebaseApp(() => initializeApp(
+    provideRouter(routes, withPreloading(PreloadAllModules)),
+    provideFirebaseApp(() => initializeApp(
       {
-        apiKey: "AIzaSyC8JFRBhCqyj3he899vmt6815V687w6-dw",
-        authDomain: "el-chat-69585.firebaseapp.com",
-        projectId: "el-chat-69585",
-        storageBucket: "el-chat-69585.firebasestorage.app",
-        messagingSenderId: "286043571507",
-        appId: "1:286043571507:web:df524546eb11e2178baa46",
-        measurementId: "G-YQ419HJSKZ"
+        apiKey: environment.apiKey,
+        authDomain: environment.authDomain,
+        projectId: environment.projectId,
+        storageBucket: environment.storageBucket,
+        messagingSenderId: environment.messagingSenderId,
+        appId: environment.appId,
+        measurementId: environment.measurementId
       }
-    )), provideAuth(() => getAuth()), provideDatabase(() => getDatabase()),
+    )),
+    provideAuth(() => getAuth()),
+    provideDatabase(() => getDatabase()),
+    provideFirestore(() => getFirestore()),
   ],
 });
+
