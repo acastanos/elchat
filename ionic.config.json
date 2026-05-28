@@ -1,0 +1,7 @@
+{
+  "name": "elchat",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
