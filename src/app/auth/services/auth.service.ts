@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, Injector, runInInjectionContext } from '@angular/core';
 import { 
   Auth, 
   createUserWithEmailAndPassword, 
@@ -20,6 +20,7 @@ import { AppUser } from '../interfaces/user.interface';
 export class AuthService {
   private auth: Auth = inject(Auth);
   private db: Database = inject(Database);
+  private injector = inject(Injector);
 
   // Observable para saber el estado de autenticación del usuario en tiempo real
   public readonly userState$: Observable<FirebaseUser | null> = authState(this.auth);
@@ -40,11 +41,15 @@ export class AuthService {
   async registerWithEmail(email: string, password: string, name: string): Promise<void> {
     try {
       // 1. Crear el usuario en Firebase Auth
-      const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
+      const userCredential = await runInInjectionContext(this.injector, () =>
+        createUserWithEmailAndPassword(this.auth, email, password)
+      );
       const user = userCredential.user;
 
       // 2. Actualizar el perfil en Auth para tener el Display Name
-      await updateProfile(user, { displayName: name });
+      await runInInjectionContext(this.injector, () =>
+        updateProfile(user, { displayName: name })
+      );
 
       // 3. Guardar el perfil en Realtime Database (/users/{uid})
       await this.saveUserToDatabase({
@@ -63,7 +68,9 @@ export class AuthService {
    */
   async loginWithEmail(email: string, password: string): Promise<void> {
     try {
-      await signInWithEmailAndPassword(this.auth, email, password);
+      await runInInjectionContext(this.injector, () =>
+        signInWithEmailAndPassword(this.auth, email, password)
+      );
     } catch (error) {
       console.error('Error durante el inicio de sesión:', error);
       throw error;
@@ -77,12 +84,16 @@ export class AuthService {
   async loginWithGoogle(): Promise<void> {
     try {
       const provider = new GoogleAuthProvider();
-      const userCredential = await signInWithPopup(this.auth, provider);
+      const userCredential = await runInInjectionContext(this.injector, () =>
+        signInWithPopup(this.auth, provider)
+      );
       const user = userCredential.user;
 
       // Comprobar si el usuario ya existe en la DB
       const dbRef = ref(this.db);
-      const snapshot = await get(child(dbRef, `users/${user.uid}`));
+      const snapshot = await runInInjectionContext(this.injector, () =>
+        get(child(dbRef, `users/${user.uid}`))
+      );
       
       // Si no existe (es su primer login con Google), lo guardamos
       if (!snapshot.exists()) {
@@ -104,7 +115,9 @@ export class AuthService {
    */
   async logout(): Promise<void> {
     try {
-      await signOut(this.auth);
+      await runInInjectionContext(this.injector, () =>
+        signOut(this.auth)
+      );
     } catch (error) {
       console.error('Error cerrando sesión:', error);
       throw error;
@@ -116,6 +129,8 @@ export class AuthService {
    */
   private async saveUserToDatabase(user: AppUser): Promise<void> {
     const userRef = ref(this.db, `users/${user.uid}`);
-    await set(userRef, user);
+    await runInInjectionContext(this.injector, () =>
+      set(userRef, user)
+    );
   }
 }
