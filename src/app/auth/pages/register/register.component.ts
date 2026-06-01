@@ -1,4 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -26,24 +27,23 @@ export class RegisterComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
 
-  public registerForm: FormGroup;
+  public registerForm: FormGroup = this.fb.group({
+    name: ['', [Validators.required, Validators.minLength(2)]],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(6)]],
+    confirmarPassword: ['', [Validators.required, Validators.minLength(6), confirmPasswordValidator]]
+  });
   public isLoading = false;
   public errorMessage = '';
   
+  private nameEvents = toSignal(this.registerForm.get('name')!.events);
+  private emailEvents = toSignal(this.registerForm.get('email')!.events);
+  private passwordEvents = toSignal(this.registerForm.get('password')!.events);
+  private confirmarPasswordEvents = toSignal(this.registerForm.get('confirmarPassword')!.events);
 
-  constructor() {
-    this.registerForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(2)]],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmarPassword: ['', [Validators.required, Validators.minLength(6), confirmPasswordValidator]]
-    },);
-  }
-
-
-  // Creamos un getter para cada campo que dependa del estado del validador/error
-  get nameLabel(): string {
-    const control = this.registerForm?.get('name');
+  nameLabel = computed(() => {
+    this.nameEvents(); 
+    const control = this.registerForm.get('name');
     if (!control) return 'Tu Nombre';
     if (control.hasError('required') && control.touched) {
       return 'Nombre (Requerido)';
@@ -52,10 +52,11 @@ export class RegisterComponent {
       return 'Mínimo 2 caracteres';
     }
     return 'Tu Nombre';
-  }
+  });
 
-  get emailLabel(): string {
-    const control = this.registerForm?.get('email');
+  emailLabel = computed(() => {
+    this.emailEvents();
+    const control = this.registerForm.get('email');
     if (!control) return 'Correo electrónico';
     if (control.hasError('required') && control.touched) {
       return 'Correo electrónico (Requerido)';
@@ -64,10 +65,11 @@ export class RegisterComponent {
       return 'Correo electrónico inválido';
     }
     return 'Correo electrónico';
-  }
+  });
 
-  get passwordLabel(): string {
-    const control = this.registerForm?.get('password');
+  passwordLabel = computed(() => {
+    this.passwordEvents();
+    const control = this.registerForm.get('password');
     if (!control) return 'Contraseña';
     if (control.hasError('required') && control.touched) {
       return 'Contraseña (Requerido)';
@@ -76,10 +78,11 @@ export class RegisterComponent {
       return 'Mínimo 6 caracteres';
     }
     return 'Contraseña';
-  }
+  });
 
-  get confirmarPasswordLabel(): string {
-    const control = this.registerForm?.get('confirmarPassword');
+  confirmarPasswordLabel = computed(() => {
+    this.confirmarPasswordEvents();
+    const control = this.registerForm.get('confirmarPassword');
     if (!control) return 'Confirmar Contraseña';
     if (control.hasError('required') && control.touched) {
       return 'Confirmar Contraseña (Requerido)';
@@ -91,7 +94,7 @@ export class RegisterComponent {
       return 'Las contraseñas no coinciden';
     }
     return 'Confirmar Contraseña';
-  }
+  });
 
 
 

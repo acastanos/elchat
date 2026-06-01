@@ -13,13 +13,13 @@
     <!-- Formulario Reactivo -->
     <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
       <ion-item lines="full">
-        <ion-input formControlName="email" type="email" label="Correo electrónico" labelPlacement="floating"
+        <ion-input formControlName="email" type="email" [label]="emailLabel()" labelPlacement="floating"
           placeholder="ejemplo@correo.com">
         </ion-input>
       </ion-item>
 
       <ion-item lines="full">
-        <ion-input formControlName="password" type="password" label="Contraseña" labelPlacement="floating"
+        <ion-input formControlName="password" type="password" [label]="passwordLabel()" labelPlacement="floating"
           placeholder="******">
         </ion-input>
       </ion-item>

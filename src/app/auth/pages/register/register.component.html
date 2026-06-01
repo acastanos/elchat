@@ -16,26 +16,25 @@
     <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
 
       <ion-item lines="full">
-        <ion-input formControlName="name" type="text" label="{{ nameLabel }}" labelPlacement="floating"
+        <ion-input formControlName="name" type="text" [label]="nameLabel()" labelPlacement="floating"
           placeholder="Ej: María López">
         </ion-input>
       </ion-item>
 
       <ion-item lines="full">
-        <ion-input formControlName="email" type="email" label="{{ emailLabel }}" labelPlacement="floating"
+        <ion-input formControlName="email" type="email" [label]="emailLabel()" labelPlacement="floating"
           placeholder="ejemplo@correo.com">
         </ion-input>
       </ion-item>
 
       <ion-item lines="full">
-        <ion-input formControlName="password" type="password" label="Contraseña" labelPlacement="floating"
+        <ion-input formControlName="password" type="password" [label]="passwordLabel()" labelPlacement="floating"
           placeholder="Mínimo 6 caracteres">
         </ion-input>
       </ion-item>
 
       <ion-item lines="full">
-        <ion-input formControlName="confirmarPassword" type="password" label="{{(registerForm.get('confirmarPassword')?.hasError('passwordMismatch') &&
-          registerForm.get('confirmarPassword')?.touched) ? 'Las contraseñas no coinciden' : 'Confirmar Contraseña'}} "
+        <ion-input formControlName="confirmarPassword" type="password" [label]="confirmarPasswordLabel()"
           labelPlacement="floating" placeholder="Repite la contraseña">
         </ion-input>
       </ion-item>

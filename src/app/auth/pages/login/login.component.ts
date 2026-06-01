@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -22,20 +22,49 @@ import { CommonModule } from '@angular/common';
   ]
 })
 export class LoginComponent {
+  emailEvents() {
+    throw new Error('Method not implemented.');
+  }
+  passwordEvents() {
+    throw new Error('Method not implemented.');
+  }
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
 
-  public loginForm: FormGroup;
   public isLoading = false;
   public errorMessage = '';
-
-  constructor() {
-    this.loginForm = this.fb.group({
+  public loginForm: FormGroup = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
-  }
+
+
+  emailLabel = computed(() => {
+    this.emailEvents();
+    const control = this.loginForm.get('email');
+    if (!control) return 'Correo electrónico';
+    if (control.hasError('required') && control.touched) {
+      return 'Correo electrónico (Requerido)';
+    }
+    if (control.hasError('email') && control.dirty) {
+      return 'Correo electrónico inválido';
+    }
+    return 'Correo electrónico';
+  });
+
+  passwordLabel = computed(() => {
+    this.passwordEvents();
+    const control = this.loginForm.get('password');
+    if (!control) return 'Contraseña';
+    if (control.hasError('required') && control.touched) {
+      return 'Contraseña (Requerido)';
+    }
+    if (control.hasError('minlength') && control.dirty) {
+      return 'Mínimo 6 caracteres';
+    }
+    return 'Contraseña';
+  });
 
   /**
    * Intenta iniciar sesión con Email y Contraseña
