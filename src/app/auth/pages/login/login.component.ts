@@ -1,4 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -22,12 +23,6 @@ import { CommonModule } from '@angular/common';
   ]
 })
 export class LoginComponent {
-  emailEvents() {
-    throw new Error('Method not implemented.');
-  }
-  passwordEvents() {
-    throw new Error('Method not implemented.');
-  }
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
@@ -38,6 +33,9 @@ export class LoginComponent {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
+
+  private emailEvents = toSignal(this.loginForm.get('email')!.events);
+  private passwordEvents = toSignal(this.loginForm.get('password')!.events);
 
 
   emailLabel = computed(() => {

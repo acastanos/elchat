@@ -1,3 +1,17 @@
-<p>
-  chat-list works!
-</p>
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>El Ch@t</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="logout()">
+        <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="welcome-container">
+    <h2>¡Bienvenido a El Ch@t!</h2>
+    <p>Has iniciado sesión correctamente. Aquí implementaremos la lista de chats en breve.</p>
+  </div>
+</ion-content>
