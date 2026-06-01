@@ -8,8 +8,8 @@
 ## 2. Autenticación y Seguridad
 - [x] Implementar Servicio de Autenticación (`auth/services/auth.service.ts`) con soporte para Email/Password y Google Sign-In.
 - [x] Crear UI de la página de Login y Registro (`auth/pages/login` y `auth/pages/register`), incluyendo campo de 'Nombre' en el registro y botón de Google.
-- [ ] Desarrollar los Angular Guards (`auth/guards/auth.guard.ts` y `no-auth.guard.ts`) para proteger las rutas.
-- [ ] Añadir pruebas unitarias básicas para los guards y el servicio de auth.
+- [x] Desarrollar los Angular Guards (`auth/guards/auth.guard.ts` y `no-auth.guard.ts`) para proteger las rutas.
+- [x] Añadir pruebas unitarias básicas para los guards y el servicio de auth.
 
 ## 3. Sistema de Chat (MVP)
 - [ ] Implementar Servicio de Chat (`chat/services/chat.service.ts`) y Servicio de Usuarios para el buscador.

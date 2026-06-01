@@ -24,4 +24,11 @@ describe('AuthService', () => {
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
+
+  it('debería tener los métodos de autenticación definidos', () => {
+    expect(service.registerWithEmail).toBeDefined();
+    expect(service.loginWithEmail).toBeDefined();
+    expect(service.loginWithGoogle).toBeDefined();
+    expect(service.logout).toBeDefined();
+  });
 });
