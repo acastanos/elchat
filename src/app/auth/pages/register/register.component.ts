@@ -115,7 +115,13 @@ export class RegisterComponent {
       // Redirigir al usuario al chat tras el registro exitoso
       this.router.navigate(['/chat']);
     } catch (error: any) {
-      this.errorMessage = 'Hubo un error al registrarse. Puede que el email ya esté en uso.';
+      if(error.code === 'auth/email-already-in-use'){
+        this.errorMessage = 'El correo electrónico ya está en uso.';
+      }else if(error.code === 'auth/invalid-email'){
+        this.errorMessage = 'El correo electrónico es inválido.';
+      }else{
+        this.errorMessage = 'Hubo un error al registrarse.';
+      }
     } finally {
       this.isLoading = false;
     }
