@@ -13,5 +13,10 @@ export const routes: Routes = [
   {
     path: 'chat',
     loadChildren: () => import('./chat/chat.routes').then(m => m.chatRoutes)
+  },
+  {
+    path: '**',
+    redirectTo: 'auth'
+
   }
 ];

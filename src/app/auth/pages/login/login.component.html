@@ -1,3 +1,55 @@
-<p>
-  login works!
-</p>
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>Entrar a El Ch@t</ion-title>
+    <img slot="end" src="assets/icon/appIcon.png" alt="App Icon" style="width: 36px; height: 36px; margin-inline-end: 16px; object-fit: contain;" />
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="login-container">
+    <h2>¡Bienvenido!</h2>
+    <p>Inicia sesión para chatear</p>
+
+    <!-- Formulario Reactivo -->
+    <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+      <ion-item lines="full">
+        <ion-input formControlName="email" type="email" label="Correo electrónico" labelPlacement="floating"
+          placeholder="ejemplo@correo.com">
+        </ion-input>
+      </ion-item>
+
+      <ion-item lines="full">
+        <ion-input formControlName="password" type="password" label="Contraseña" labelPlacement="floating"
+          placeholder="******">
+        </ion-input>
+      </ion-item>
+
+      @if (errorMessage) {
+      <ion-text color="danger">
+        <p class="error-msg">{{ errorMessage }}</p>
+      </ion-text>
+      }
+
+      <ion-button expand="block" type="submit" [disabled]="loginForm.invalid || isLoading" class="ion-margin-top">
+        @if (isLoading) {
+        <ion-spinner name="crescent"></ion-spinner>
+        } @else {
+        <span>Iniciar Sesión</span>
+        }
+      </ion-button>
+    </form>
+
+    <div class="divider">
+      <span>o</span>
+    </div>
+
+    <!-- Login con Google -->
+    <ion-button expand="block" fill="outline" color="dark" (click)="onGoogleLogin()" [disabled]="isLoading">
+      Entrar con Google
+    </ion-button>
+
+    <div class="footer-links">
+      <p>¿No tienes cuenta? <a routerLink="/auth/register">Regístrate aquí</a></p>
+    </div>
+  </div>
+</ion-content>

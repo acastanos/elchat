@@ -1,3 +1,62 @@
-<p>
-  register works!
-</p>
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>Crear Cuenta</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="login-container">
+    <h2 style="display: flex; align-items: center; gap: 8px;">
+      Únete a El Ch@t
+      <img src="assets/icon/favicon.png" alt="App Icon" style="width: 36px; height: 36px; object-fit: contain;" />
+    </h2>
+    <p>Regístrate para comenzar a chatear</p>
+
+    <!-- Formulario Reactivo de Registro -->
+    <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
+
+      <ion-item lines="full">
+        <ion-input formControlName="name" type="text" label="{{ nameLabel }}" labelPlacement="floating"
+          placeholder="Ej: María López">
+        </ion-input>
+      </ion-item>
+
+      <ion-item lines="full">
+        <ion-input formControlName="email" type="email" label="{{ emailLabel }}" labelPlacement="floating"
+          placeholder="ejemplo@correo.com">
+        </ion-input>
+      </ion-item>
+
+      <ion-item lines="full">
+        <ion-input formControlName="password" type="password" label="Contraseña" labelPlacement="floating"
+          placeholder="Mínimo 6 caracteres">
+        </ion-input>
+      </ion-item>
+
+      <ion-item lines="full">
+        <ion-input formControlName="confirmarPassword" type="password" label="{{(registerForm.get('confirmarPassword')?.hasError('passwordMismatch') &&
+          registerForm.get('confirmarPassword')?.touched) ? 'Las contraseñas no coinciden' : 'Confirmar Contraseña'}} "
+          labelPlacement="floating" placeholder="Repite la contraseña">
+        </ion-input>
+      </ion-item>
+
+      @if (errorMessage) {
+      <ion-text color="danger">
+        <p class="error-msg">{{ errorMessage }}</p>
+      </ion-text>
+      }
+
+      <ion-button expand="block" type="submit" [disabled]="registerForm.invalid || isLoading" class="ion-margin-top">
+        @if (isLoading) {
+        <ion-spinner name="crescent"></ion-spinner>
+        } @else {
+        <span>Registrarse</span>
+        }
+      </ion-button>
+    </form>
+
+    <div class="footer-links">
+      <p>¿Ya tienes cuenta? <a routerLink="/auth/login">Entrar aquí</a></p>
+    </div>
+  </div>
+</ion-content>
