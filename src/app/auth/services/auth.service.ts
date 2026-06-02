@@ -11,8 +11,7 @@ import {
 } from '@angular/fire/auth';
 import { Database, ref, set, get, child } from '@angular/fire/database';
 import { Observable } from 'rxjs';
-import { User as FirebaseUser } from '@firebase/auth';
-import { AppUser } from '../interfaces/user.interface';
+import { User as FirebaseUser } from '@angular/fire/auth';
 
 @Injectable({
   providedIn: 'root'
@@ -25,7 +24,13 @@ export class AuthService {
   // Observable para saber el estado de autenticación del usuario en tiempo real
   public readonly userState$: Observable<FirebaseUser | null> = authState(this.auth);
 
-  constructor() {}
+  public userData?: FirebaseUser | null;
+
+  constructor() {
+    this.userState$.subscribe((user) => {
+      this.userData = user;
+    });
+  }
 
   /**
    * Obtiene el usuario actual logueado
@@ -111,7 +116,7 @@ export class AuthService {
   /**
    * Función privada auxiliar para guardar el perfil en Realtime Database
    */
-  private async saveUserToDatabase(user: AppUser): Promise<void> {
+  private async saveUserToDatabase(user: any): Promise<void> {
     const userRef = ref(this.db, `users/${user.uid}`);
     await set(userRef, user);
   }

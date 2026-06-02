@@ -12,7 +12,7 @@
 - [x] Añadir pruebas unitarias básicas para los guards y el servicio de auth.
 
 ## 3. Sistema de Chat (MVP)
-- [ ] Implementar Servicio de Chat (`chat/services/chat.service.ts`) y Servicio de Usuarios para el buscador.
+- [x] Implementar Servicio de Chat (`chat/services/chat.service.ts`) y Servicio de Usuarios para el buscador.
 - [ ] Instalar plugin `@capacitor/geolocation` y configurar permisos.
 - [ ] Crear UI del Listado de Chats y añadir buscador por Nombre (`chat/pages/chat-list`).
 - [ ] Crear UI de la pantalla de Chat (`chat/pages/chat-detail`).
