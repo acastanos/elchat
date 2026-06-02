@@ -10,8 +10,27 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <div class="welcome-container">
-    <h2>¡Bienvenido a El Ch@t!</h2>
-    <p>Has iniciado sesión correctamente. Aquí implementaremos la lista de chats en breve.</p>
+  <div class="welcome-container" *ngIf="user$ | async as user">
+    
+    <ion-card>
+      <ion-card-header>
+        <ion-item lines="none">
+          <ion-avatar slot="start">
+            <!-- Mostramos la foto de Google si existe, si no, un placeholder -->
+            <img [src]="user.photoURL || 'assets/icon/appIcon.png'" alt="Avatar del usuario" />
+          </ion-avatar>
+          <ion-label>
+            <ion-card-title>{{ user.displayName || 'Usuario de El Ch@t' }}</ion-card-title>
+            <p>{{ user.email }}</p>
+          </ion-label>
+        </ion-item>
+      </ion-card-header>
+      
+      <ion-card-content>
+        <p>¡Has iniciado sesión correctamente! Esta es tu información recuperada de Google Firebase.</p>
+        <p><strong>UID:</strong> {{ user.uid }}</p>
+      </ion-card-content>
+    </ion-card>
+
   </div>
 </ion-content>

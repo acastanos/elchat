@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, OnInit, OnDestroy } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -8,6 +8,8 @@ import {
   IonItem, IonInput, IonButton, IonText, IonSpinner, IonIcon
 } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
+import { NgZone } from '@angular/core';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -22,13 +24,16 @@ import { CommonModule } from '@angular/common';
     IonItem, IonInput, IonButton, IonText, IonSpinner, IonIcon
   ]
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private ngZone = inject(NgZone);
 
   public isLoading = false;
   public errorMessage = '';
+  private userSub!: Subscription;
+  
   public loginForm: FormGroup = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]]
@@ -37,6 +42,30 @@ export class LoginComponent {
   private emailEvents = toSignal(this.loginForm.get('email')!.events);
   private passwordEvents = toSignal(this.loginForm.get('password')!.events);
 
+  ngOnInit() {
+    this.userSub = this.authService.userState$.subscribe(user => {
+      console.log('LoginComponent detectó userState$:', user ? user.email : 'null');
+      if (user) {
+        this.ngZone.run(() => {
+          console.log('Redirigiendo a /chat...');
+          this.router.navigate(['/chat']);
+        });
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.userSub) {
+      this.userSub.unsubscribe();
+    }
+  }
+
+  ionViewWillEnter() {
+    // Al entrar en la vista nos aseguramos de que el loading esté quitado
+    this.isLoading = false;
+    this.errorMessage = '';
+    // this.loginForm.reset(); // Opcional, pero resetea los campos si quieres
+  }
 
   emailLabel = computed(() => {
     this.emailEvents();
@@ -76,12 +105,16 @@ export class LoginComponent {
 
     try {
       await this.authService.loginWithEmail(email, password);
-      // Redirigir al usuario al chat tras hacer login exitoso
-      this.router.navigate(['/chat']);
+      // Forzamos la ejecución dentro de Angular Zone para actualizar la UI y rutear
+      this.ngZone.run(() => {
+        this.isLoading = false;
+        this.router.navigate(['/chat']);
+      });
     } catch (error: any) {
-      this.errorMessage = 'Credenciales incorrectas o error de conexión.';
-    } finally {
-      this.isLoading = false;
+      this.ngZone.run(() => {
+        this.errorMessage = 'Credenciales incorrectas o error de conexión.';
+        this.isLoading = false;
+      });
     }
   }
 
@@ -94,11 +127,15 @@ export class LoginComponent {
     
     try {
       await this.authService.loginWithGoogle();
-      this.router.navigate(['/chat']);
+      this.ngZone.run(() => {
+        this.isLoading = false;
+        this.router.navigate(['/chat']);
+      });
     } catch (error: any) {
-      this.errorMessage = 'Error al iniciar sesión con Google.';
-    } finally {
-      this.isLoading = false;
+      this.ngZone.run(() => {
+        this.errorMessage = 'Error al iniciar sesión con Google.';
+        this.isLoading = false;
+      });
     }
   }
 }

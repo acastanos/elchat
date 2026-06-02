@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, OnInit, OnDestroy } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -8,6 +8,8 @@ import {
   IonItem, IonInput, IonButton, IonText, IonSpinner, IonIcon
 } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
+import { NgZone } from '@angular/core';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-register',
@@ -22,10 +24,11 @@ import { CommonModule } from '@angular/common';
     IonItem, IonInput, IonButton, IonText, IonSpinner, IonIcon
   ]
 })
-export class RegisterComponent {
+export class RegisterComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private ngZone = inject(NgZone);
 
   public registerForm: FormGroup = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(2)]],
@@ -35,11 +38,28 @@ export class RegisterComponent {
   });
   public isLoading = false;
   public errorMessage = '';
+  private userSub!: Subscription;
   
   private nameEvents = toSignal(this.registerForm.get('name')!.events);
   private emailEvents = toSignal(this.registerForm.get('email')!.events);
   private passwordEvents = toSignal(this.registerForm.get('password')!.events);
   private confirmarPasswordEvents = toSignal(this.registerForm.get('confirmarPassword')!.events);
+
+  ngOnInit() {
+    this.userSub = this.authService.userState$.subscribe(user => {
+      if (user) {
+        this.ngZone.run(() => {
+          this.router.navigate(['/chat']);
+        });
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.userSub) {
+      this.userSub.unsubscribe();
+    }
+  }
 
   nameLabel = computed(() => {
     this.nameEvents(); 
@@ -112,18 +132,22 @@ export class RegisterComponent {
 
     try {
       await this.authService.registerWithEmail(email, password, name);
-      // Redirigir al usuario al chat tras el registro exitoso
-      this.router.navigate(['/chat']);
+      // Forzamos la ejecución dentro de Angular Zone para actualizar la UI y rutear
+      this.ngZone.run(() => {
+        this.isLoading = false;
+        this.router.navigate(['/chat']);
+      });
     } catch (error: any) {
-      if(error.code === 'auth/email-already-in-use'){
-        this.errorMessage = 'El correo electrónico ya está en uso.';
-      }else if(error.code === 'auth/invalid-email'){
-        this.errorMessage = 'El correo electrónico es inválido.';
-      }else{
-        this.errorMessage = 'Hubo un error al registrarse.';
-      }
-    } finally {
-      this.isLoading = false;
+      this.ngZone.run(() => {
+        if(error.code === 'auth/email-already-in-use'){
+          this.errorMessage = 'El correo electrónico ya está en uso.';
+        }else if(error.code === 'auth/invalid-email'){
+          this.errorMessage = 'El correo electrónico es inválido.';
+        }else{
+          this.errorMessage = 'Hubo un error al registrarse.';
+        }
+        this.isLoading = false;
+      });
     }
   }
 }

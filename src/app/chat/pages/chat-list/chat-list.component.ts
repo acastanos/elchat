@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton, IonIcon } from '@ionic/angular/standalone';
+import { CommonModule } from '@angular/common';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton, IonIcon, IonAvatar, IonItem, IonLabel, IonCard, IonCardHeader, IonCardTitle, IonCardContent } from '@ionic/angular/standalone';
 import { AuthService } from '../../../auth/services/auth.service';
 import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
@@ -10,11 +11,13 @@ import { logOutOutline } from 'ionicons/icons';
   templateUrl: './chat-list.component.html',
   styleUrls: ['./chat-list.component.scss'],
   standalone: true,
-  imports: [IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton, IonIcon]
+  imports: [CommonModule, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton, IonIcon, IonAvatar, IonItem, IonLabel, IonCard, IonCardHeader, IonCardTitle, IonCardContent]
 })
 export class ChatListComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
+
+  public user$ = this.authService.userState$;
 
   constructor() {
     // Registramos el icono específico que vamos a usar
