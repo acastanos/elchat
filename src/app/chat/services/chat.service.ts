@@ -69,7 +69,7 @@ export class ChatService {
   /**
    * Retorna un Observable con la lista de chats del usuario en tiempo real.
    */
-  getUserChats(): Observable<(Chat & { id: string, otherUserName?: string, otherUserAvatar?: string | null })[]> {
+  getUserChats(): Observable<(Chat & { id: string, otherUserName?: string, otherUserAvatar?: string | null, displayLastMessage?: string })[]> {
     return new Observable((observer) => {
       const currentUser = this.authService.userData;
       if (!currentUser) {
@@ -80,7 +80,7 @@ export class ChatService {
       return runInInjectionContext(this.injector, () => {
         const userChatsRef = ref(this.db, `userChats/${currentUser.uid}`);
         const chatUnsubscribes = new Map<string, () => void>();
-        const currentChats = new Map<string, Chat & { id: string, otherUserName?: string, otherUserAvatar?: string | null }>();
+        const currentChats = new Map<string, Chat & { id: string, otherUserName?: string, otherUserAvatar?: string | null, displayLastMessage?: string }>();
         
         const emitChats = () => {
           const chatsArray = Array.from(currentChats.values());
@@ -113,7 +113,12 @@ export class ChatService {
               const unsubChat = onValue(chatRef, async (chatSnap) => {
                 if (chatSnap.exists()) {
                   const chat = chatSnap.val() as Chat;
-                  const chatObj = { ...chat, id: chatId, otherUserName: 'Chat Privado', otherUserAvatar: null as string | null };
+                  const chatObj: Chat & { id: string, otherUserName?: string, otherUserAvatar?: string | null, displayLastMessage?: string } = { 
+                    ...chat, 
+                    id: chatId, 
+                    otherUserName: 'Chat Privado', 
+                    otherUserAvatar: null 
+                  };
                   
                   if (chat.type === 'direct_chat') {
                     const otherUid = chat.participantIds.find(id => id !== currentUser.uid);
@@ -128,6 +133,16 @@ export class ChatService {
                   } else if (chat.type === 'ai_chat') {
                     chatObj.otherUserName = 'Gemini AI';
                     // La IA usará el appIcon.png por defecto en el HTML
+                  }
+                  
+                  if (chat.lastMessage) {
+                    if (chat.lastMessageSenderId === currentUser.uid) {
+                      chatObj.displayLastMessage = `Tú: ${chat.lastMessage}`;
+                    } else {
+                      chatObj.displayLastMessage = `${chatObj.otherUserName}: ${chat.lastMessage}`;
+                    }
+                  } else {
+                    chatObj.displayLastMessage = 'Envía el primer mensaje...';
                   }
                   
                   currentChats.set(chatId, chatObj);
@@ -220,6 +235,7 @@ export class ChatService {
         // 3. Preparamos una actualización masiva (multipath update)
         const updates: Record<string, any> = {
           [`chats/${chatId}/lastMessage`]: text,
+          [`chats/${chatId}/lastMessageSenderId`]: currentUser.uid,
           [`chats/${chatId}/updatedAt`]: Date.now()
         };
         

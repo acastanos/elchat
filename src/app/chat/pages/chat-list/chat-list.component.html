@@ -1,6 +1,13 @@
 <ion-header class="ion-no-border">
   <ion-toolbar>
-    <ion-title>Tus Ch@ts</ion-title>
+    <ion-title style="display: flex; align-items: center; gap: 8px;">
+      Tus Ch@ts
+      @if (user$ | async; as currentUser) {
+        <ion-avatar (click)="goToSettings()" style="width: 32px; height: 32px; cursor: pointer; display: inline-block; vertical-align: middle; margin-left: 8px;">
+          <img [src]="currentUser.photoURL || 'assets/icon/appIcon.png'" alt="Tu Perfil" />
+        </ion-avatar>
+      }
+    </ion-title>
     <ion-buttons slot="end">
       <ion-button class="search-toggle-btn" (click)="toggleSearch()">
         <img src="assets/icon/favicon.png" alt="Buscar" style="width: 28px; height: 28px; object-fit: contain;" />
@@ -66,7 +73,7 @@
     <div class="ion-padding ion-text-center">
       <ion-icon name="chatbubbles-outline" style="font-size: 64px; color: var(--ion-color-medium);"></ion-icon>
       <h3 style="color: var(--ion-color-medium);">No tienes chats</h3>
-      <p style="color: var(--ion-color-medium);">¡Busca a alguien en la barra superior para empezar a chatear!</p>
+      <p style="color: var(--ion-color-medium);">¡Busca a alguien para empezar a chatear!</p>
     </div>
     }
 
@@ -79,7 +86,7 @@
         </ion-avatar>
         <ion-label>
           <h2>{{ chat.type === 'ai_chat' ? 'Gemini AI' : chat.otherUserName }}</h2>
-          <p>{{ chat.lastMessage || 'Envía el primer mensaje...' }}</p>
+          <p>{{ chat.displayLastMessage }}</p>
         </ion-label>
       </ion-item>
       

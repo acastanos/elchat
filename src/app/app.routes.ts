@@ -14,6 +14,11 @@ export const routes: Routes = [
     canActivate: [noAuthGuard]
   },
   {
+    path: 'settings',
+    loadComponent: () => import('./shared/pages/settings/settings.component').then(m => m.SettingsComponent),
+    canActivate: [authGuard]
+  },
+  {
     path: 'chat',
     loadChildren: () => import('./chat/chat.routes').then(m => m.chatRoutes),
     canActivate: [authGuard]

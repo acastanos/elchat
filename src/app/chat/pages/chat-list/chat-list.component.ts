@@ -54,6 +54,10 @@ export class ChatListComponent {
     }
   }
 
+  goToSettings() {
+    this.router.navigate(['/settings']);
+  }
+
   async onSearchChange(event: any) {
     this.searchTerm = event.detail.value || '';
     if (this.searchTerm.trim() === '') {

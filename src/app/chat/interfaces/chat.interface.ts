@@ -3,6 +3,7 @@ export interface Chat {
   type: 'direct_chat' | 'ai_chat';
   participantIds: string[]; // Array de UIDs de los participantes (por ejemplo, el usuario actual y el otro usuario, o Gemini)
   lastMessage?: string;
+  lastMessageSenderId?: string;
   updatedAt: number;
 }
 
