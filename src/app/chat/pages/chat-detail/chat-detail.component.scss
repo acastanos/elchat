@@ -65,3 +65,38 @@ ion-toolbar {
   margin-top: 40px;
   font-style: italic;
 }
+
+/* Contenedor del input de texto para forzar el borde redondo */
+.message-input-container {
+  flex: 1;
+  background-color: #ffffff;
+  border-radius: 20px;
+  margin: 0 5px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+/* El textarea en sí */
+.message-textarea {
+  width: 100%;
+  --background: transparent;
+  --color: #000000;
+  --padding-start: 15px;
+  --padding-end: 15px;
+  /* Al ser autoGrow, la caja interna a veces desvía el texto hacia arriba visualmente. 
+     Aumentamos ligeramente el padding superior para empujarlo hacia el centro exacto */
+  --padding-top: 12px;
+  --padding-bottom: 8px;
+  margin: 0;
+}
+
+/* Adaptación a modo oscuro */
+@media (prefers-color-scheme: dark) {
+  .message-input-container {
+    background-color: #1e1e1e; /* Fondo oscuro elevado */
+  }
+  .message-textarea {
+    --color: #ffffff; /* Texto blanco sobre fondo oscuro */
+  }
+}

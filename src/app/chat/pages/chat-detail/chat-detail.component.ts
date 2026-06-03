@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, 
   IonButtons, IonBackButton, IonFooter, 
-  IonInput, IonButton, IonIcon, IonSpinner
+  IonInput, IonButton, IonIcon, IonSpinner, IonAvatar, IonTextarea
 } from '@ionic/angular/standalone';
 import { ChatService } from '../../services/chat.service';
 import { UserService } from '../../services/user.service';
@@ -23,7 +23,7 @@ import { send, locationOutline } from 'ionicons/icons';
   imports: [
     CommonModule, ReactiveFormsModule, IonHeader, IonToolbar, IonTitle, 
     IonContent, IonButtons, IonBackButton, IonFooter, 
-    IonInput, IonButton, IonIcon, IonSpinner
+    IonInput, IonButton, IonIcon, IonSpinner, IonAvatar, IonTextarea
   ]
 })
 export class ChatDetailComponent implements OnInit {
@@ -35,6 +35,7 @@ export class ChatDetailComponent implements OnInit {
 
   public chatId: string = '';
   public otherUserName: string = 'Cargando...';
+  public otherUserAvatar: string | null = null;
   public messages$!: Observable<(Message & { id: string })[]>;
   public currentUserUid = this.authService.userData?.uid;
   public isSending = false;
@@ -60,8 +61,10 @@ export class ChatDetailComponent implements OnInit {
             const user = await this.userService.getUserById(otherUid);
             if (user) {
               this.otherUserName = user.name || 'Usuario';
+              this.otherUserAvatar = user.photoURL || null;
             } else {
               this.otherUserName = 'Usuario Desconocido';
+              this.otherUserAvatar = null;
             }
           }
         } else if (chat && chat.type === 'ai_chat') {
