@@ -48,6 +48,17 @@ ion-list {
   --inner-padding-end: 16px; /* Margen interno a la derecha */
 }
 
+/* Truncar el texto del último mensaje a un máximo de 2 líneas */
+.chat-card-item p {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal; /* Sobrescribe el nowrap por defecto de Ionic */
+  margin-top: 4px;
+}
+
 /* En modo oscuro, el fondo general y el item son negros puros y no se distinguen. 
    Forzamos un gris oscuro "elevado" para las tarjetas y un gris ligeramente menos oscuro para el fondo */
 @media (prefers-color-scheme: dark) {
