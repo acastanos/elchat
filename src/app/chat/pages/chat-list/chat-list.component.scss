@@ -14,3 +14,48 @@ ion-toolbar {
   max-height: 60px; /* Suficiente para que quepa la toolbar */
   opacity: 1;
 }
+
+/* Fondo adaptativo al modo oscuro usando la variable nativa de background */
+ion-content {
+  --background: var(--ion-background-color-step-50, #efefef);
+}
+
+/* La lista por defecto en Ionic tiene fondo (blanco en claro, negro en oscuro). 
+   Hay que hacerla transparente para que se vea el fondo de ion-content */
+ion-list {
+  background: transparent;
+}
+
+.chat-list-container {
+  padding: 0 16px; /* Añadimos el espacio lateral aquí para que el 100% de la tarjeta no sobresalga */
+}
+
+/* Contenedor deslizable de la tarjeta */
+.chat-card-sliding {
+  margin: 10px 0; /* Solo margen vertical, el horizontal lo gestiona el padding de la lista */
+  border-radius: 16px !important;
+  overflow: hidden; /* Fuerza el redondeo cortando el interior */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background: var(--ion-color-danger, #eb445a); /* Fondo detrás para el botón de borrar */
+}
+
+/* Interior de la tarjeta adaptativo al modo oscuro */
+.chat-card-item {
+  --background: var(--ion-item-background, var(--ion-background-color, #ffffff));
+  --border-radius: 16px !important;
+  border-radius: 16px !important;
+  --padding-start: 16px; /* Asegura un margen interno para que el contenido respire */
+  --inner-padding-end: 16px; /* Margen interno a la derecha */
+}
+
+/* En modo oscuro, el fondo general y el item son negros puros y no se distinguen. 
+   Forzamos un gris oscuro "elevado" para las tarjetas y un gris ligeramente menos oscuro para el fondo */
+@media (prefers-color-scheme: dark) {
+  ion-content {
+    --background: #121212; /* Fondo casi negro */
+  }
+  
+  .chat-card-item {
+    --background: #1e1e1e; /* Gris oscuro para hacer contraste ("elevado") */
+  }
+}

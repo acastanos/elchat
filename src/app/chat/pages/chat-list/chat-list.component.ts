@@ -1,4 +1,4 @@
-import { Component, inject, HostListener, OnInit } from '@angular/core';
+import { Component, inject, HostListener, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton, IonIcon, IonAvatar, IonItem, IonLabel, IonList, IonSearchbar, IonSpinner, IonItemSliding, IonItemOptions, IonItemOption } from '@ionic/angular/standalone';
 import { AuthService } from '../../../auth/services/auth.service';
@@ -22,6 +22,8 @@ export class ChatListComponent {
   private chatService = inject(ChatService);
   private userService = inject(UserService);
   private router = inject(Router);
+
+  @ViewChild(IonList) chatList!: IonList;
 
   public user$ = this.authService.userState$;
   public chats$!: ReturnType<ChatService['getUserChats']>;
@@ -113,6 +115,14 @@ export class ChatListComponent {
         this.showSearch = false;
         this.searchTerm = '';
         this.searchResults = [];
+      }
+    }
+    
+    // Si han hecho clic fuera de una tarjeta, cerrar las opciones deslizadas
+    if (this.chatList) {
+      const clickedInsideList = (event.target as HTMLElement).closest('ion-list');
+      if (!clickedInsideList) {
+        this.chatList.closeSlidingItems();
       }
     }
   }
