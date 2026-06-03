@@ -21,7 +21,7 @@ import { Subscription } from 'rxjs';
     ReactiveFormsModule,
     RouterLink,
     IonContent, IonHeader, IonTitle, IonToolbar,
-    IonItem, IonInput, IonButton, IonText, IonSpinner, IonIcon
+    IonItem, IonInput, IonButton, IonText, IonSpinner
   ]
 })
 export class RegisterComponent implements OnInit, OnDestroy {

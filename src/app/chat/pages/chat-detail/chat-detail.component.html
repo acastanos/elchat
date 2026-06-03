@@ -1,3 +1,72 @@
-<p>
-  chat-detail works!
-</p>
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/chat/chat-list"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ otherUserName }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <!-- Contenedor de Mensajes -->
+  @if (messages$ | async; as messages) {
+    <div class="messages-container">
+      @for (message of messages; track message.id) {
+        <!-- Usamos [class.sent] y [class.received] para alinear los mensajes -->
+        <div class="message-wrapper" [class.sent]="message.senderId === currentUserUid" [class.received]="message.senderId !== currentUserUid">
+          <div class="message-bubble">
+            <!-- Si es un mensaje de ubicación (lo haremos después), mostraremos otra cosa -->
+            @if (message.type === 'location') {
+              <p>📍 <i>Ubicación compartida</i></p>
+            } @else {
+              <p>{{ message.text }}</p>
+            }
+            <span class="message-time">{{ message.timestamp | date:'shortTime' }}</span>
+          </div>
+        </div>
+      }
+      
+      <!-- Estado vacío para el chat -->
+      @if (messages.length === 0) {
+        <div class="empty-chat">
+          <p>Aún no hay mensajes. ¡Escribe el primero!</p>
+        </div>
+      }
+    </div>
+  }
+</ion-content>
+
+<!-- Formulario para escribir mensaje -->
+<ion-footer class="ion-no-border">
+  <ion-toolbar>
+    <form [formGroup]="messageForm" (ngSubmit)="sendMessage()" class="message-form" style="display: flex; align-items: center; width: 100%;">
+      
+      <!-- Botón de Ubicación (Se implementará la lógica en la próxima tarea) -->
+      <ion-button fill="clear" color="medium" class="location-btn">
+        <ion-icon slot="icon-only" name="location-outline"></ion-icon>
+      </ion-button>
+      
+      <!-- Input de Texto Reactivo -->
+      <ion-input 
+        formControlName="text" 
+        placeholder="Escribe un mensaje..."
+        autocomplete="off"
+        style="flex: 1; --background: var(--ion-color-light); border-radius: 20px; --padding-start: 15px; margin: 0 5px;">
+      </ion-input>
+
+      <!-- Botón Enviar -->
+      <ion-button 
+        type="submit" 
+        fill="clear" 
+        [disabled]="messageForm.invalid || isSending"
+        color="primary">
+        @if (isSending) {
+          <ion-spinner name="dots"></ion-spinner>
+        } @else {
+          <ion-icon slot="icon-only" name="send"></ion-icon>
+        }
+      </ion-button>
+
+    </form>
+  </ion-toolbar>
+</ion-footer>

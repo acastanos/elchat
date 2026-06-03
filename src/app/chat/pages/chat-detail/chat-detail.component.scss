@@ -1,0 +1,67 @@
+ion-toolbar {
+    --background: var(--ion-color, #2c5cd6);
+    --color: var(--ion-color, #ffffff);
+}
+
+
+.messages-container {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 20px;
+}
+
+.message-wrapper {
+  display: flex;
+  margin-bottom: 10px;
+  width: 100%;
+
+  &.sent {
+    justify-content: flex-end;
+    .message-bubble {
+      background-color: var(--ion-color-primary);
+      color: var(--ion-color-primary-contrast);
+      border-radius: 15px 15px 0 15px;
+    }
+    .message-time {
+      color: rgba(249, 248, 248, 0.772);
+    }
+  }
+
+  &.received {
+    justify-content: flex-start;
+    .message-bubble {
+      background-color: var(--ion-color-light);
+      color: var(--ion-color-dark);
+      border-radius: 15px 15px 15px 0;
+    }
+    .message-time {
+      color: rgba(0, 0, 0, 0.5);
+    }
+  }
+}
+
+.message-bubble {
+  max-width: 75%;
+  padding: 10px 14px;
+  position: relative;
+  
+  p {
+    margin: 0 0 5px 0;
+    font-size: 15px;
+    line-height: 1.4;
+    word-wrap: break-word;
+  }
+}
+
+.message-time {
+  font-size: 11px;
+  float: right;
+  margin-left: 10px;
+}
+
+.empty-chat {
+  text-align: center;
+  color: var(--ion-color-medium);
+  margin-top: 40px;
+  font-style: italic;
+}

@@ -1,36 +1,99 @@
-<ion-header>
-  <ion-toolbar color="primary">
-    <ion-title>El Ch@t</ion-title>
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>Tus Ch@ts</ion-title>
     <ion-buttons slot="end">
+      <ion-button class="search-toggle-btn" (click)="toggleSearch()">
+        <img src="assets/icon/favicon.png" alt="Buscar" style="width: 28px; height: 28px; object-fit: contain;" />
+      </ion-button>
       <ion-button (click)="logout()">
         <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
+  <!-- Barra de búsqueda fija debajo del título -->
+  <div class="search-container" [class.show]="showSearch">
+    <ion-toolbar style="--background: #e0e0e0;">
+      <ion-searchbar [(ngModel)]="searchTerm" (ionInput)="onSearchChange($event)"
+        placeholder="Buscar usuario por nombre..." animated="true" debounce="300" 
+        style="--border-radius: 20px;">
+      </ion-searchbar>
+    </ion-toolbar>
+  </div>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <div class="welcome-container" *ngIf="user$ | async as user">
-    
-    <ion-card>
-      <ion-card-header>
-        <ion-item lines="none">
-          <ion-avatar slot="start">
-            <!-- Mostramos la foto de Google si existe, si no, un placeholder -->
-            <img [src]="user.photoURL || 'assets/icon/appIcon.png'" alt="Avatar del usuario" />
-          </ion-avatar>
-          <ion-label>
-            <ion-card-title>{{ user.displayName || 'Usuario de El Ch@t' }}</ion-card-title>
-            <p>{{ user.email }}</p>
-          </ion-label>
-        </ion-item>
-      </ion-card-header>
-      
-      <ion-card-content>
-        <p>¡Has iniciado sesión correctamente! Esta es tu información recuperada de Google Firebase.</p>
-        <p><strong>UID:</strong> {{ user.uid }}</p>
-      </ion-card-content>
-    </ion-card>
+<ion-content>
 
-  </div>
+  <!-- Resultados de búsqueda (Se muestra si hay algo escrito) -->
+  @if (searchTerm.length > 0) {
+  <ion-list>
+
+    @if (isSearching) {
+    <ion-item>
+      <ion-spinner name="crescent"></ion-spinner>
+      <ion-label class="ion-margin-start">Buscando usuarios...</ion-label>
+    </ion-item>
+    }
+
+    @if (!isSearching && searchResults.length === 0) {
+    <ion-item>
+      <ion-label color="medium">No se encontraron usuarios.</ion-label>
+    </ion-item>
+    }
+
+    <!-- Lista de usuarios encontrados -->
+    @for (user of searchResults; track user.uid) {
+    <ion-item button (click)="startChatWith(user)">
+      <ion-avatar slot="start">
+        <img [src]="user.photoURL || 'assets/icon/appIcon.png'" alt="Avatar">
+      </ion-avatar>
+      <ion-label>
+        <h2>{{ user.displayName || 'Usuario' }}</h2>
+        <p>{{ user.email }}</p>
+      </ion-label>
+      <ion-icon name="chatbubbles-outline" slot="end" color="primary"></ion-icon>
+    </ion-item>
+    }
+  </ion-list>
+  }
+
+  <!-- Lista de chats activos (Se muestra si el buscador está vacío) -->
+  @if (searchTerm.length === 0) {
+  <ion-list>
+    @if (chats$ | async; as chats) {
+
+    <!-- Estado vacío -->
+    @if (chats.length === 0) {
+    <div class="ion-padding ion-text-center">
+      <ion-icon name="chatbubbles-outline" style="font-size: 64px; color: var(--ion-color-medium);"></ion-icon>
+      <h3 style="color: var(--ion-color-medium);">No tienes chats</h3>
+      <p style="color: var(--ion-color-medium);">¡Busca a alguien en la barra superior para empezar a chatear!</p>
+    </div>
+    }
+
+    <!-- Item de chat con posibilidad de deslizar para borrar -->
+    @for (chat of chats; track chat.id) {
+    <ion-item-sliding>
+      <ion-item button (click)="openChat(chat.id)">
+        <ion-avatar slot="start">
+          <img src="assets/icon/appIcon.png" alt="Avatar del chat">
+        </ion-avatar>
+        <ion-label>
+          <h2>{{ chat.type === 'ai_chat' ? 'Gemini AI' : chat.otherUserName }}</h2>
+          <p>{{ chat.lastMessage || 'Envía el primer mensaje...' }}</p>
+        </ion-label>
+      </ion-item>
+      
+      <!-- Opciones al deslizar -->
+      <ion-item-options side="end">
+        <ion-item-option color="danger" (click)="deleteChat(chat.id)">
+          <ion-icon slot="icon-only" name="trash"></ion-icon>
+        </ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+    }
+
+    }
+  </ion-list>
+  }
+
 </ion-content>

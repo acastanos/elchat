@@ -14,9 +14,9 @@
 ## 3. Sistema de Chat (MVP)
 - [x] Implementar Servicio de Chat (`chat/services/chat.service.ts`) y Servicio de Usuarios para el buscador.
 - [ ] Instalar plugin `@capacitor/geolocation` y configurar permisos.
-- [ ] Crear UI del Listado de Chats y añadir buscador por Nombre (`chat/pages/chat-list`).
-- [ ] Crear UI de la pantalla de Chat (`chat/pages/chat-detail`).
-- [ ] Añadir formulario reactivo para el envío de mensajes y adjuntar la ubicación (lat/lng) antes del envío.
+- [x] Crear UI del Listado de Chats y añadir buscador por Nombre (`chat/pages/chat-list`).
+- [x] Crear UI de la pantalla de Chat (`chat/pages/chat-detail`).
+- [x] Añadir formulario reactivo para el envío de mensajes y adjuntar la ubicación (lat/lng) antes del envío.
 - [ ] Implementar **Infinite Scroll** nativo de Ionic para paginar mensajes de 10 en 10 hacia atrás.
 - [ ] Añadir pruebas unitarias para la lógica del paginado y validación del formulario.
 

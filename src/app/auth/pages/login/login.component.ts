@@ -21,7 +21,7 @@ import { Subscription } from 'rxjs';
     ReactiveFormsModule,
     RouterLink,
     IonContent, IonHeader, IonTitle, IonToolbar, 
-    IonItem, IonInput, IonButton, IonText, IonSpinner, IonIcon
+    IonItem, IonInput, IonButton, IonText, IonSpinner
   ]
 })
 export class LoginComponent implements OnInit, OnDestroy {
@@ -64,7 +64,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     // Al entrar en la vista nos aseguramos de que el loading esté quitado
     this.isLoading = false;
     this.errorMessage = '';
-    // this.loginForm.reset(); // Opcional, pero resetea los campos si quieres
+    this.loginForm.reset(); // Limpiar el formulario al volver (ej: hacer logout)
   }
 
   emailLabel = computed(() => {

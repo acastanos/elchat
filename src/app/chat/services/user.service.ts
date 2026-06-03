@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, Injector, runInInjectionContext } from '@angular/core';
 import { Database, ref, query, orderByChild, startAt, endAt, get } from '@angular/fire/database';
 import { User as FirebaseUser } from '@angular/fire/auth';
 import { AuthService } from '../../auth/services/auth.service';
@@ -9,6 +9,7 @@ import { AuthService } from '../../auth/services/auth.service';
 export class UserService {
   private db: Database = inject(Database);
   private authService = inject(AuthService);
+  private injector = inject(Injector);
 
   /**
    * Busca usuarios en Realtime Database cuyo nombre comience por el término de búsqueda.
@@ -17,37 +18,58 @@ export class UserService {
   async searchUsersByName(searchTerm: string): Promise<FirebaseUser[]> {
     if (!searchTerm || searchTerm.trim().length === 0) return [];
     
-    const term = searchTerm.trim();
+    const term = searchTerm.trim().toLowerCase();
     
-    // Referencia al nodo principal de usuarios
-    const usersRef = ref(this.db, 'users');
-    
-    // Creamos la query usando Firebase Realtime DB.
-    // El caracter '\uf8ff' es un código Unicode muy alto, utilizado como un truco en Firebase
-    // para emular una consulta SQL del estilo "LIKE 'term%'"
-    const searchQuery = query(
-      usersRef, 
-      orderByChild('name'), 
-      startAt(term), 
-      endAt(term + '\uf8ff')
-    );
-
-    const snapshot = await get(searchQuery);
+    // Ejecutamos la construcción de la query y el get dentro del contexto de inyección 
+    // de Angular para evitar el warning/error de AngularFire
+    const snapshot = await runInInjectionContext(this.injector, () => {
+      const usersRef = ref(this.db, 'users');
+      const searchQuery = query(
+        usersRef, 
+        orderByChild('nameLowercase'), 
+        startAt(term), 
+        endAt(term + '\uf8ff')
+      );
+      return get(searchQuery);
+    });
     const users: FirebaseUser[] = [];
     
     const currentUserUid = this.authService.userData?.uid;
 
     if (snapshot.exists()) {
-      // Usamos forEach para iterar de forma segura sobre el snapshot de Firebase
+      console.log('Firebase snapshot de búsqueda:', snapshot.val());
       snapshot.forEach((childSnapshot) => {
-        const user = childSnapshot.val() as FirebaseUser;
+        const dbUser = childSnapshot.val();
+        // Mapeamos 'name' a 'displayName' para que encaje con la interfaz FirebaseUser
+        const user = { ...dbUser, displayName: dbUser.name || dbUser.displayName } as FirebaseUser;
+        console.log('Usuario iterado:', user);
         // No queremos chatear con nosotros mismos en esta búsqueda
         if (user.uid !== currentUserUid) {
           users.push(user);
+        } else {
+          console.log('Ignorando al propio usuario actual:', user.uid);
         }
       });
+    } else {
+      console.log('El snapshot de la búsqueda no devolvió datos para el término:', term);
     }
 
+    console.log('Usuarios devueltos por searchUsersByName:', users);
+
     return users;
+  }
+
+  /**
+   * Obtiene la información de un usuario por su UID.
+   */
+  async getUserById(uid: string): Promise<any> {
+    return runInInjectionContext(this.injector, async () => {
+      const userRef = ref(this.db, `users/${uid}`);
+      const snapshot = await get(userRef);
+      if (snapshot.exists()) {
+        return snapshot.val();
+      }
+      return null;
+    });
   }
 }

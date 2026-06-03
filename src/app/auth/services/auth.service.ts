@@ -54,7 +54,8 @@ export class AuthService {
       await this.saveUserToDatabase({
         uid: user.uid,
         email: user.email,
-        name: name
+        name: name,
+        nameLowercase: name.toLowerCase()
       });
     } catch (error) {
       console.error('Error durante el registro:', error);
@@ -88,10 +89,12 @@ export class AuthService {
       const snapshot = await get(child(dbRef, `users/${user.uid}`));
       
       if (!snapshot.exists()) {
+        const displayName = user.displayName || 'Usuario de Google';
         await this.saveUserToDatabase({
           uid: user.uid,
           email: user.email,
-          name: user.displayName || 'Usuario de Google',
+          name: displayName,
+          nameLowercase: displayName.toLowerCase(),
           photoURL: user.photoURL || ''
         });
       }

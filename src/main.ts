@@ -4,7 +4,7 @@ import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalo
 
 import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
-import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
+import { initializeApp, provideFirebaseApp, getApp } from '@angular/fire/app';
 import { getAuth, provideAuth } from '@angular/fire/auth';
 import { getDatabase, provideDatabase } from '@angular/fire/database';
 import { getFirestore, provideFirestore } from '@angular/fire/firestore';
@@ -15,19 +15,9 @@ bootstrapApplication(AppComponent, {
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideIonicAngular(),
     provideRouter(routes, withPreloading(PreloadAllModules)),
-    provideFirebaseApp(() => initializeApp(
-      {
-        apiKey: environment.apiKey,
-        authDomain: environment.authDomain,
-        projectId: environment.projectId,
-        storageBucket: environment.storageBucket,
-        messagingSenderId: environment.messagingSenderId,
-        appId: environment.appId,
-        measurementId: environment.measurementId
-      }
-    )),
+    provideFirebaseApp(() => initializeApp(environment)),
     provideAuth(() => getAuth()),
-    provideDatabase(() => getDatabase()),
+    provideDatabase(() => getDatabase(getApp(), environment.databaseURL)),
     provideFirestore(() => getFirestore()),
   ],
 });

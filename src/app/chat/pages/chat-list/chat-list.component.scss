@@ -1,0 +1,16 @@
+ion-toolbar {
+    --background: var(--ion-color, #2c5cd6);
+    --color: var(--ion-color, #ffffff);
+}
+
+.search-container {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+.search-container.show {
+  max-height: 60px; /* Suficiente para que quepa la toolbar */
+  opacity: 1;
+}

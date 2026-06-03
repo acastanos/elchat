@@ -10,8 +10,8 @@ export const environment = {
   storageBucket: "el-chat-69585.firebasestorage.app",
   messagingSenderId: "286043571507",
   appId: "1:286043571507:web:df524546eb11e2178baa46",
-  measurementId: "G-YQ419HJSKZ"
-
+  measurementId: "G-YQ419HJSKZ",
+  databaseURL: "https://el-chat-69585-default-rtdb.europe-west1.firebasedatabase.app"
 };
 
 /*
