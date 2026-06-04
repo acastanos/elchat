@@ -17,15 +17,16 @@
   @if (messages$ | async; as messages) {
     <div class="messages-container">
       @for (message of messages; track message.id) {
-        <!-- Usamos [class.sent] y [class.received] para alinear los mensajes -->
         <div class="message-wrapper" [class.sent]="message.senderId === currentUserUid" [class.received]="message.senderId !== currentUserUid">
           <div class="message-bubble">
-            <!-- Si es un mensaje de ubicación (lo haremos después), mostraremos otra cosa -->
-            @if (message.type === 'location') {
-              <p>📍 <i>Ubicación compartida</i></p>
-            } @else {
-              <p>{{ message.text }}</p>
+            <!-- Si el mensaje tiene localización adjunta, mostramos la cabecera -->
+            @if (message.location) {
+              <span class="message-location-header" style="font-size: 0.75em; opacity: 0.8; display: block; margin-bottom: 4px; font-weight: 500;">
+                {{ message.senderId === currentUserUid ? 'Tú' : otherUserName }} desde lat: {{ message.location.lat | number:'1.0-3' }}, lon: {{ message.location.lng | number:'1.0-3' }}
+              </span>
             }
+            
+            <p>{{ message.text }}</p>
             <span class="message-time">{{ message.timestamp | date:'shortTime' }}</span>
           </div>
         </div>
@@ -46,19 +47,15 @@
   <ion-toolbar color="primary">
     <form [formGroup]="messageForm" (ngSubmit)="sendMessage()" class="message-form" style="display: flex; align-items: flex-end; width: 100%; padding: 5px 0;">
       
-      <!-- Botón de Ubicación -->
-      <ion-button fill="clear" style="color: white; margin-bottom: 2px;" class="location-btn">
-        <ion-icon slot="icon-only" name="location-outline"></ion-icon>
-      </ion-button>
-      
       <!-- Input de Texto Reactivo Expandible -->
       <div class="message-input-container">
         <ion-textarea 
           formControlName="text" 
           placeholder="Escribe un mensaje..."
-          autoGrow="true"
+          [autoGrow]="true"
           rows="1"
-          class="message-textarea">
+          class="message-textarea"
+          (keydown.enter)="onEnterPressed($event)">
         </ion-textarea>
       </div>
 

@@ -9,6 +9,7 @@ import { addIcons } from 'ionicons';
 import { logOutOutline, chatbubblesOutline, personOutline, trash } from 'ionicons/icons';
 import { User as FirebaseUser } from '@angular/fire/auth';
 import { FormsModule } from '@angular/forms';
+import { Geolocation } from '@capacitor/geolocation';
 
 @Component({
   selector: 'app-chat-list',
@@ -17,7 +18,7 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [CommonModule, FormsModule, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton, IonIcon, IonAvatar, IonItem, IonLabel, IonList, IonSearchbar, IonSpinner, IonItemSliding, IonItemOptions, IonItemOption]
 })
-export class ChatListComponent {
+export class ChatListComponent implements OnInit {
   private authService = inject(AuthService);
   private chatService = inject(ChatService);
   private userService = inject(UserService);
@@ -27,6 +28,16 @@ export class ChatListComponent {
 
   public user$ = this.authService.userState$;
   public chats$!: ReturnType<ChatService['getUserChats']>;
+
+  async ngOnInit() {
+    // En la plataforma web, requestPermissions no está implementado y lanza error.
+    // La forma de pedir permisos en web es simplemente intentando obtener la ubicación.
+    try {
+      await Geolocation.getCurrentPosition({ enableHighAccuracy: false, maximumAge: 60000, timeout: 10000 });
+    } catch (e) {
+      console.warn('El usuario denegó la ubicación o no se pudo obtener en chat-list', e);
+    }
+  }
 
   ionViewWillEnter() {
     // Al entrar en la vista nos aseguramos de cargar los chats del usuario actual.

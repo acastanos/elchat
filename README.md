@@ -6,6 +6,7 @@
 **El Ch@t** es una aplicación de mensajería multiplataforma (iOS, Android y Web) construida con tecnologías web modernas. Cuenta con autenticación segura, sincronización de mensajes en tiempo real y la particularidad de tener chats predefinidos potenciados por un modelo local de IA (Google Gemini) que responde a los mensajes del usuario.
 
 Repositorio: [https://github.com/acastanos/elchat]
+Demo en vivo: [https://deft-lily-f5d5ce.netlify.app/] (Aplicación web desplegada para probar sin entorno local)
 
 ---
 

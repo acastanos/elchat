@@ -18,24 +18,24 @@ ion-toolbar {
   &.sent {
     justify-content: flex-end;
     .message-bubble {
-      background-color: var(--ion-color-primary);
-      color: var(--ion-color-primary-contrast);
+      background-color: #77b7ff; /* Azul más claro y suave (tipo pastel intenso) para modo claro */
+      color: #000000;
       border-radius: 15px 15px 0 15px;
     }
     .message-time {
-      color: rgba(249, 248, 248, 0.772);
+      color: rgba(0, 0, 0, 0.7);
     }
   }
 
   &.received {
     justify-content: flex-start;
     .message-bubble {
-      background-color: var(--ion-color-light);
-      color: var(--ion-color-dark);
+      background-color: #e5e5ea; /* Gris más oscuro para mejor contraste en modo claro */
+      color: #000000;
       border-radius: 15px 15px 15px 0;
     }
     .message-time {
-      color: rgba(0, 0, 0, 0.5);
+      color: rgba(0, 0, 0, 0.6);
     }
   }
 }
@@ -71,7 +71,7 @@ ion-toolbar {
   flex: 1;
   background-color: #ffffff;
   border-radius: 20px;
-  margin: 0 5px;
+  margin: 0 15px; /* Más margen a los lados para que no se pegue al borde de la pantalla */
   padding: 0;
   display: flex;
   align-items: center;
@@ -82,7 +82,7 @@ ion-toolbar {
   width: 100%;
   --background: transparent;
   --color: #000000;
-  --padding-start: 15px;
+  --padding-start: 20px; /* Más padding interno izquierdo para que el texto no se pegue al borde curvo */
   --padding-end: 15px;
   /* Al ser autoGrow, la caja interna a veces desvía el texto hacia arriba visualmente. 
      Aumentamos ligeramente el padding superior para empujarlo hacia el centro exacto */
@@ -98,5 +98,23 @@ ion-toolbar {
   }
   .message-textarea {
     --color: #ffffff; /* Texto blanco sobre fondo oscuro */
+  }
+  
+  /* Aumento de contraste para mensajes recibidos en modo oscuro */
+  .received .message-bubble {
+    background-color: #3a3a3c;
+    color: #ffffff;
+  }
+  .received .message-time {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  /* Azul apagado y suave para mensajes enviados en modo oscuro */
+  .sent .message-bubble {
+    background-color: #367ac9;
+    color: #000000;
+  }
+  .sent .message-time {
+    color: rgba(0, 0, 0, 0.7);
   }
 }
