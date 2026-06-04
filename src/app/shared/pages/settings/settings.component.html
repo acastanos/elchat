@@ -9,5 +9,28 @@
 
 <ion-content class="ion-padding">
   <h2>Pantalla de Ajustes</h2>
-  <p>Esta pantalla se implementará más adelante.</p>
+  <p>Opciones de configuración de la cuenta.</p>
+
+  <!-- Opciones de Administrador -->
+  @if (isAdmin) {
+    <div style="margin-top: 40px;">
+      <h3 style="color: var(--ion-color-danger); display: flex; align-items: center; gap: 8px;">
+        <ion-icon name="warning-outline"></ion-icon>
+        Zona de Peligro (Admin)
+      </h3>
+      <p style="font-size: 14px; color: var(--ion-color-medium);">
+        Opciones reservadas exclusivamente para administradores.
+      </p>
+
+      <ion-button expand="block" color="danger" (click)="confirmWipeAll()">
+        <ion-icon name="trash-outline" slot="start"></ion-icon>
+        Reiniciar todas las conversaciones
+      </ion-button>
+
+      <ion-button expand="block" color="warning" (click)="confirmMarkAllUnread()" style="margin-top: 15px;">
+        <ion-icon name="warning-outline" slot="start"></ion-icon>
+        Marcar todos como no leídos
+      </ion-button>
+    </div>
+  }
 </ion-content>

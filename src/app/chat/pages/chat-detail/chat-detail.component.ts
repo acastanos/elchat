@@ -5,7 +5,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, 
   IonButtons, IonBackButton, IonFooter, 
-  IonButton, IonIcon, IonSpinner, IonAvatar, IonTextarea
+  IonButton, IonIcon, IonSpinner, IonAvatar, IonTextarea,
+  IonInfiniteScroll, IonInfiniteScrollContent
 } from '@ionic/angular/standalone';
 import { ChatService } from '../../services/chat.service';
 import { UserService } from '../../services/user.service';
@@ -25,12 +26,13 @@ import { Geolocation } from '@capacitor/geolocation';
   imports: [
     CommonModule, ReactiveFormsModule, IonHeader, IonToolbar, IonTitle, 
     IonContent, IonButtons, IonBackButton, IonFooter, 
-    IonButton, IonIcon, IonSpinner, IonAvatar, IonTextarea
+    IonButton, IonIcon, IonSpinner, IonAvatar, IonTextarea,
+    IonInfiniteScroll, IonInfiniteScrollContent
   ]
 })
 export class ChatDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
-  private chatService = inject(ChatService);
+  public chatService = inject(ChatService);
   private userService = inject(UserService);
   public authService = inject(AuthService);
   private fb = inject(FormBuilder);
@@ -38,9 +40,11 @@ export class ChatDetailComponent implements OnInit {
   public chatId: string = '';
   public otherUserName: string = 'Cargando...';
   public otherUserAvatar: string | null = null;
-  public messages$!: Observable<(Message & { id: string })[]>;
+  public messages$!: Observable<(Message & { id: string, isFirstUnread?: boolean })[]>;
   public currentUserUid = this.authService.userData?.uid;
   public isSending = false;
+  private isFirstLoad = true;
+  public isInitialLoadComplete = false;
   
   @ViewChild(IonContent, { static: false }) content!: IonContent;
   
@@ -59,16 +63,44 @@ export class ChatDetailComponent implements OnInit {
     this.chatId = this.route.snapshot.paramMap.get('id') || '';
     if (this.chatId) {
       this.messages$ = this.chatService.getMessages(this.chatId).pipe(
-        tap(() => {
-          setTimeout(() => {
-            if (this.content) {
-              this.content.scrollToBottom(300);
-            }
-          }, 100);
+        tap((messages) => {
+          if (this.isFirstLoad && messages.length > 0) {
+            this.isFirstLoad = false;
+            setTimeout(() => {
+              const unreadMsg = messages.find(m => m.isFirstUnread);
+              if (unreadMsg && this.content) {
+                const el = document.getElementById('msg-' + unreadMsg.id);
+                if (el) {
+                  this.content.getScrollElement().then(scrollEl => {
+                    const elRect = el.getBoundingClientRect();
+                    const scrollRect = scrollEl.getBoundingClientRect();
+                    const currentScroll = scrollEl.scrollTop;
+                    
+                    // Posición Y absoluta del elemento dentro del scroll
+                    const absoluteY = elRect.top - scrollRect.top + currentScroll;
+                    
+                    // Calculamos target Y para que el elemento quede en el tercio superior/centro
+                    const targetY = absoluteY - (scrollEl.clientHeight / 3);
+                    
+                    this.content.scrollToPoint(0, targetY > 0 ? targetY : 0, 300);
+                  });
+                }
+              } else if (this.content) {
+                this.content.scrollToBottom(300);
+              }
+              // Habilitamos los Infinite Scrolls una vez terminada la carga y el ajuste de scroll
+              setTimeout(() => {
+                this.isInitialLoadComplete = true;
+              }, 400); // Dar un poco de margen para que acabe el scroll (300ms)
+            }, 150); // Ligeramente más tiempo para asegurar renderizado completo
+          }
         })
       );
       
       try {
+        // Inicializamos el estado del chat en el servicio
+        await this.chatService.initChatState(this.chatId);
+
         const chat = await this.chatService.getChatById(this.chatId);
         if (chat && chat.type === 'direct_chat') {
           const otherUid = chat.participantIds.find(id => id !== this.currentUserUid);
@@ -119,10 +151,28 @@ export class ChatDetailComponent implements OnInit {
     }
   }
 
-  async ngOnDestroy() {
+  // Usamos los hooks nativos de Ionic porque ngOnDestroy puede no dispararse al hacer "back"
+  async ionViewWillLeave() {
     if (this.watchId) {
       await Geolocation.clearWatch({ id: this.watchId });
+      this.watchId = null;
     }
+    // Guardar el cursor de lectura al salir del chat
+    if (this.chatId) {
+      await this.chatService.markChatAsRead(this.chatId);
+    }
+  }
+
+  async loadOlder(event: any) {
+    await this.chatService.loadOlderMessages();
+    event.target.complete();
+    event.target.disabled = !this.chatService.hasMoreOlder;
+  }
+
+  async loadNewer(event: any) {
+    await this.chatService.loadNewerMessages();
+    event.target.complete();
+    event.target.disabled = !this.chatService.hasMoreNewer;
   }
 
   async sendMessage() {
@@ -141,7 +191,11 @@ export class ChatDetailComponent implements OnInit {
       } else {
         await this.chatService.sendMessage(this.chatId, text.trim(), 'text');
       }
+      // Reseteamos el formulario
       this.messageForm.reset();
+      
+      // Reseteamos la vista al último mensaje si estábamos navegando por el pasado
+      await this.chatService.resetToBottom();
       
       // Forzar scroll al enviar
       setTimeout(() => {

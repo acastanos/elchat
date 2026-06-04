@@ -66,6 +66,29 @@ ion-toolbar {
   font-style: italic;
 }
 
+.unread-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 20px 0;
+  
+  span {
+    padding: 0 10px;
+    color: var(--ion-color-medium, #92949c);
+    font-size: 13px;
+    font-style: italic;
+    background-color: transparent;
+  }
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--ion-color-medium, #92949c);
+    opacity: 0.3;
+  }
+}
+
 /* Contenedor del input de texto para forzar el borde redondo */
 .message-input-container {
   flex: 1;

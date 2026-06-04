@@ -13,11 +13,24 @@
 </ion-header>
 
 <ion-content class="ion-padding">
+  <!-- Scroll hacia atrás (mensajes antiguos) -->
+  <ion-infinite-scroll position="top" (ionInfinite)="loadOlder($event)" [disabled]="!isInitialLoadComplete || !chatService.hasMoreOlder">
+    <ion-infinite-scroll-content loadingSpinner="bubbles"></ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+
   <!-- Contenedor de Mensajes -->
   @if (messages$ | async; as messages) {
     <div class="messages-container">
       @for (message of messages; track message.id) {
-        <div class="message-wrapper" [class.sent]="message.senderId === currentUserUid" [class.received]="message.senderId !== currentUserUid">
+        
+        <!-- Separador de Mensajes No Leídos -->
+        @if (message.isFirstUnread) {
+          <div class="unread-divider">
+            <span>Nuevos mensajes</span>
+          </div>
+        }
+
+        <div [id]="'msg-' + message.id" class="message-wrapper" [class.sent]="message.senderId === currentUserUid" [class.received]="message.senderId !== currentUserUid">
           <div class="message-bubble">
             <!-- Si el mensaje tiene localización adjunta, mostramos la cabecera -->
             @if (message.location) {
@@ -40,6 +53,11 @@
       }
     </div>
   }
+
+  <!-- Scroll hacia adelante (mensajes nuevos sin leer) -->
+  <ion-infinite-scroll position="bottom" (ionInfinite)="loadNewer($event)" [disabled]="!isInitialLoadComplete || !chatService.hasMoreNewer">
+    <ion-infinite-scroll-content loadingSpinner="bubbles"></ion-infinite-scroll-content>
+  </ion-infinite-scroll>
 </ion-content>
 
 <!-- Formulario para escribir mensaje -->

@@ -55,7 +55,8 @@ export class AuthService {
         uid: user.uid,
         email: user.email,
         name: name,
-        nameLowercase: name.toLowerCase()
+        nameLowercase: name.toLowerCase(),
+        role: 'user'
       });
     } catch (error) {
       console.error('Error durante el registro:', error);
@@ -95,7 +96,8 @@ export class AuthService {
           email: user.email,
           name: displayName,
           nameLowercase: displayName.toLowerCase(),
-          photoURL: user.photoURL || ''
+          photoURL: user.photoURL || '',
+          role: 'user'
         });
       }
     } catch (error) {
