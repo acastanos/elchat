@@ -68,7 +68,9 @@ erDiagram
     *   `participant2_uid`: String (Usuario B o IA)
     *   `lastMessage`: String (Resumen del último mensaje para pintar en la lista)
     *   `lastUpdated`: Number (Timestamp UNIX)
-3.  `/messages/{chat_id}/{message_id}`
+3.  `/userChats/{userId}/{chatId}` (NUEVO)
+    *   `lastRead`: Number (Timestamp UNIX indicando el último mensaje leído por ese usuario en ese chat)
+4.  `/messages/{chat_id}/{message_id}`
     *   `sender_uid`: String (quien lo envió, o 'gemini-ai')
     *   `text`: String
     *   `timestamp`: Number (Timestamp UNIX)
@@ -76,7 +78,26 @@ erDiagram
     *   `longitude`: Number (Opcional, ubicación GPS)
 
 > [!TIP]
-> **Índices sugeridos (Reglas de DB):** Indexar `/chats` por `participant1_uid` y `participant2_uid` para poder filtrar los chats activos de un usuario rápidamente.
+> **Índices sugeridos (Reglas de DB):** Indexar `/chats` por `participant1_uid` y `participant2_uid` para poder filtrar los chats activos de un usuario rápidamente. Indexar `/messages/{chatId}` por `timestamp` para habilitar el Infinite Scroll bidireccional.
+
+---
+
+## 2.5 Gestión de Estado y Paginación (ChatService)
+
+El núcleo de la lectura de mensajes recae en el `ChatService`, que ha evolucionado a ser **Stateful** (maneja el estado interno usando `BehaviorSubject`).
+
+### Paginación Bidireccional
+La implementación usa múltiples querys coordinadas:
+1.  **Arranque Inteligente**: Al entrar al chat (`initChatState`), se obtiene el `lastRead` del usuario de `/userChats`. 
+    *   Se consultan los últimos 10 mensajes *anteriores* al `lastRead` (`endBefore`).
+    *   Se consultan los primeros 10 mensajes *posteriores* al `lastRead` (`startAfter`).
+2.  **Scroll Histórico**: `loadOlderMessages()` busca mensajes anteriores al registro más viejo actual en el BehaviorSubject.
+3.  **Scroll Futuro**: `loadNewerMessages()` busca mensajes posteriores al registro más reciente.
+4.  **Tiempo Real**: Al alcanzar el tope de mensajes nuevos de la BBDD, se levanta un _listener_ de bajo coste (`onChildAdded`) escuchando mensajes entrantes en vivo.
+
+### Workarounds Implementados
+*   **Ionic Infinite Scroll**: Para evitar eventos fantasma de recarga cíclica en Angular/Ionic, se retrasa 400ms la activación visual de los Infinite Scroll (`isInitialLoadComplete`) en el `ngOnInit`.
+*   **iOS Chrome Firebase Auth**: Se cambió `signInWithPopup` por `signInWithRedirect` para evitar cuelgues del popup en WebViews de iOS al identificarse con Google.
 
 ---
 

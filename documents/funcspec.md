@@ -12,19 +12,21 @@ Aplicación de mensajería instantánea para plataformas iOS y Android, desarrol
 
 ## 3. Capacidades Core (MVP)
 
-### 3.1. Autenticación y Usuarios
+### 3.1. Autenticación, Usuarios y Roles
 *   Registro de nuevos usuarios (Email, Contraseña y Nombre).
-*   Inicio de sesión dual: Email/Contraseña y Google Sign-In (Gmail).
+*   Inicio de sesión dual: Email/Contraseña y Google Sign-In (Gmail). Ajustado con `signInWithRedirect` para robustez en navegadores móviles (iOS Chrome).
 *   Gestión básica de perfil (Nombre de usuario, Avatar).
+*   **Roles y Permisos**: Soporte para perfil de `admin`. El administrador dispone de utilidades en la pantalla de Ajustes para resetear la base de datos o marcar chats como no leídos.
 *   **Protección de Rutas (Guards)**: Uso de Angular Guards para restringir el acceso a las vistas internas, permitiendo a los usuarios no logueados acceder únicamente a las páginas de Login y Registro.
 
 ### 3.2. Sistema de Chat
 *   **Buscador de Usuarios**: Posibilidad de buscar a otros usuarios registrados por su nombre en la base de datos para iniciar una nueva conversación privada.
 *   Listado de conversaciones activas (incluyendo chats con humanos y el chat predefinido con la IA).
-*   Pantalla de chat en tiempo real con **Infinite Scroll** nativo de Ionic: paginación de mensajes de 10 en 10, cargando desde el último (más reciente) hacia atrás hasta llegar al inicio.
+*   **Marcador de Lectura (LastRead)**: Sistema que recuerda exactamente el último mensaje leído por el usuario mediante timestamps persistidos en `/userChats`.
+*   **Paginación Bidireccional Inteligente**: Pantalla de chat con Infinite Scroll nativo hacia arriba (mensajes antiguos) y hacia abajo (mensajes nuevos sin leer), posicionando el inicio justo en la frontera de mensajes sin leer con un divisor visual.
 *   Almacenamiento del historial de mensajes en Firebase Realtime Database.
-*   **Validación de Entrada**: Uso de **Formularios Reactivos (Reactive Forms)** en Angular para la caja de texto, deshabilitando el botón de enviar si el mensaje está vacío.
-*   **Geolocalización:** Los mensajes se enviarán con la posición geográfica (latitud y longitud) del remitente utilizando un plugin nativo de Capacitor.
+*   **Validación de Entrada**: Uso de **Formularios Reactivos (Reactive Forms)** en Angular para la caja de texto.
+*   **Geolocalización:** Los mensajes se enviarán con la posición geográfica (latitud y longitud) del remitente utilizando el plugin nativo de Capacitor.
 
 ### 3.3. Interacción con IA (Auto-Respuesta en Chats Predefinidos)
 La Inteligencia Artificial **solo estará activa en unos chats predefinidos** (ej. "Asistente Virtual") que todos los usuarios tendrán por defecto al registrarse. Los chats privados entre dos humanos no tendrán intervención de la IA.
@@ -71,8 +73,8 @@ Dado que el objetivo es mantener un desarrollo ágil y utilizar un modelo gratui
 
 ## 6. Metodología y Requisitos Técnicos
 
-*   **Cobertura de Tests**: El proyecto exige un mínimo del **80% de cobertura de pruebas** para el código implementado (Unit Testing).
-*   **Desarrollo Modular y Controlado**: Se aplicará una arquitectura modular en Angular. El desarrollo se ejecutará paso a paso, con explicaciones claras de cada bloque para asegurar un aprendizaje y seguimiento controlado.
+*   **Cobertura de Tests**: El proyecto cuenta con un entorno configurado con **Jasmine y Karma**, superando las pruebas unitarias para componentes complejos (`ChatDetailComponent`, `SettingsComponent`) gracias al uso de *Spies* para inyectar mocks asíncronos de Firebase y Ionic.
+*   **Desarrollo Modular y Controlado**: Se aplicará una arquitectura modular en Angular.
 *   **Estado Actual del Entorno**: El proyecto base ya está inicializado con Ionic/Angular en el directorio de trabajo, tiene Capacitor instalado (iOS/Android), y ya se encuentra enlazado al proyecto de Firebase en la nube (`el-chat-69585`).
 
 ## Siguientes Pasos

@@ -7,7 +7,8 @@ import {
   authState,
   updateProfile,
   GoogleAuthProvider,
-  signInWithPopup
+  signInWithRedirect,
+  getRedirectResult
 } from '@angular/fire/auth';
 import { Database, ref, set, get, child } from '@angular/fire/database';
 import { Observable } from 'rxjs';
@@ -30,6 +31,32 @@ export class AuthService {
     this.userState$.subscribe((user) => {
       this.userData = user;
     });
+    this.handleRedirectResult();
+  }
+
+  private async handleRedirectResult() {
+    try {
+      const userCredential = await getRedirectResult(this.auth);
+      if (userCredential && userCredential.user) {
+        const user = userCredential.user;
+        const dbRef = ref(this.db);
+        const snapshot = await get(child(dbRef, `users/${user.uid}`));
+        
+        if (!snapshot.exists()) {
+          const displayName = user.displayName || 'Usuario de Google';
+          await this.saveUserToDatabase({
+            uid: user.uid,
+            email: user.email,
+            name: displayName,
+            nameLowercase: displayName.toLowerCase(),
+            photoURL: user.photoURL || '',
+            role: 'user'
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error procesando el login con Google tras el redirect:', error);
+    }
   }
 
   /**
@@ -83,23 +110,9 @@ export class AuthService {
   async loginWithGoogle(): Promise<void> {
     try {
       const provider = new GoogleAuthProvider();
-      const userCredential = await signInWithPopup(this.auth, provider);
-      const user = userCredential.user;
-
-      const dbRef = ref(this.db);
-      const snapshot = await get(child(dbRef, `users/${user.uid}`));
-      
-      if (!snapshot.exists()) {
-        const displayName = user.displayName || 'Usuario de Google';
-        await this.saveUserToDatabase({
-          uid: user.uid,
-          email: user.email,
-          name: displayName,
-          nameLowercase: displayName.toLowerCase(),
-          photoURL: user.photoURL || '',
-          role: 'user'
-        });
-      }
+      // Usamos redirect en lugar de popup para evitar bloqueos en navegadores móviles (ej. Chrome en iOS)
+      await signInWithRedirect(this.auth, provider);
+      // El navegador redirigirá, y a la vuelta se manejará en handleRedirectResult()
     } catch (error) {
       console.error('Error durante el login con Google:', error);
       throw error;

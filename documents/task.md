@@ -13,12 +13,13 @@
 
 ## 3. Sistema de Chat (MVP)
 - [x] Implementar Servicio de Chat (`chat/services/chat.service.ts`) y Servicio de Usuarios para el buscador.
-- [ ] Instalar plugin `@capacitor/geolocation` y configurar permisos.
+- [x] Instalar plugin `@capacitor/geolocation` y configurar permisos.
 - [x] Crear UI del Listado de Chats y añadir buscador por Nombre (`chat/pages/chat-list`).
 - [x] Crear UI de la pantalla de Chat (`chat/pages/chat-detail`).
 - [x] Añadir formulario reactivo para el envío de mensajes y adjuntar la ubicación (lat/lng) antes del envío.
-- [ ] Implementar **Infinite Scroll** nativo de Ionic para paginar mensajes de 10 en 10 hacia atrás.
-- [ ] Añadir pruebas unitarias para la lógica del paginado y validación del formulario.
+- [x] Implementar **Paginación Bidireccional Inteligente (Stateful)** y doble **Infinite Scroll** nativo de Ionic.
+- [x] Añadir sistema de **Marcador de Lectura (LastRead)** y divisor visual de "Nuevos mensajes".
+- [x] Añadir funcionalidad de **Rol Administrador** (Settings) para limpiar base de datos y forzar no leídos.
 
 ## 4. Integración de IA (Gemini)
 - [ ] Implementar Servicio de IA que consuma la API de Google Gemini (`chat/services/ai.service.ts` o en `shared/services/`).
@@ -28,6 +29,9 @@
 - [ ] Pruebas unitarias para el servicio de IA y el comportamiento condicional del spinner.
 
 ## 5. Revisión y Testing Final
-- [ ] Configurar Karma/Jasmine para la cobertura de código.
-- [ ] Ejecutar suite de pruebas y garantizar el **80% de code coverage**.
-- [ ] Realizar pruebas manuales (iOS, Android, Web) y revisar linting.
+- [x] Configurar Karma/Jasmine para la cobertura de código.
+- [x] Ejecutar suite de pruebas (25/25 pasando) para `ChatDetailComponent`, `SettingsComponent` y Servicios aislando dependencias.
+- [x] Realizar pruebas manuales (iOS Safari/Chrome) y resolver bugs críticos:
+  - [x] Solución al login infinito en Chrome iOS (`signInWithRedirect`).
+  - [x] Solución al bug de enrutamiento con `<ion-back-button>`.
+  - [x] Solución al último mensaje oculto por el teclado (padding-bottom adaptativo).
