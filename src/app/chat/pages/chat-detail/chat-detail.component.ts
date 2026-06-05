@@ -11,6 +11,7 @@ import {
 import { ChatService } from '../../services/chat.service';
 import { UserService } from '../../services/user.service';
 import { AuthService } from '../../../auth/services/auth.service';
+import { AiService } from '../../services/ai.service';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Message } from '../../interfaces/chat.interface';
@@ -43,8 +44,14 @@ export class ChatDetailComponent implements OnInit {
   public messages$!: Observable<(Message & { id: string, isFirstUnread?: boolean })[]>;
   public currentUserUid = this.authService.userData?.uid;
   public isSending = false;
+  public isAiTyping = false;
+  public isAiChat = false;
+  public botUid = '';
+  public botType: 'mama' | 'churri' | null = null;
   private isFirstLoad = true;
   public isInitialLoadComplete = false;
+  
+  private aiService = inject(AiService);
   
   @ViewChild(IonContent, { static: false }) content!: IonContent;
   
@@ -115,7 +122,17 @@ export class ChatDetailComponent implements OnInit {
             }
           }
         } else if (chat && chat.type === 'ai_chat') {
-          this.otherUserName = 'Gemini AI';
+          this.isAiChat = true;
+          this.botUid = chat.participantIds.find((id: string) => id !== this.currentUserUid) || '';
+          this.botType = this.botUid === 'ai_mama' ? 'mama' : 'churri';
+          
+          if (this.botType === 'mama') {
+            this.otherUserName = 'Mamá';
+            this.otherUserAvatar = 'https://ionicframework.com/docs/img/demos/avatar.svg';
+          } else {
+            this.otherUserName = 'Mi amor churri';
+            this.otherUserAvatar = 'https://ionicframework.com/docs/img/demos/avatar.svg';
+          }
         } else {
           this.otherUserName = 'Chat';
         }
@@ -203,6 +220,28 @@ export class ChatDetailComponent implements OnInit {
           this.content.scrollToBottom(300);
         }
       }, 50);
+
+      // --- LOGICA DE INTELIGENCIA ARTIFICIAL ---
+      if (this.isAiChat && this.botUid && this.botType) {
+        this.isAiTyping = true;
+        setTimeout(() => { if (this.content) this.content.scrollToBottom(300); }, 100);
+        
+        // Obtenemos los mensajes cargados actualmente en memoria como historial para Gemini
+        const history = this.chatService.activeChatMessages$.getValue();
+        
+        // Llamada a la API de Gemini (le pasamos el text recién enviado para garantizar que sea el último mensaje)
+        const responseText = await this.aiService.generateResponse(history, this.botType, this.botUid, text);
+        
+        // Retraso artificial para simular tipeo humano (min 1.5s, máx 4s)
+        const delay = Math.min(Math.max(responseText.length * 30, 1500), 4000);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        
+        // Guardamos el mensaje resultante como si lo hubiese escrito el bot
+        await this.chatService.sendBotMessage(this.chatId, responseText, this.botUid);
+        
+        this.isAiTyping = false;
+        setTimeout(() => { if (this.content) this.content.scrollToBottom(300); }, 100);
+      }
       
     } catch (error) {
       console.error('Error al enviar mensaje:', error);

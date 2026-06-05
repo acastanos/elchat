@@ -2,7 +2,7 @@ import { Injectable, inject, Injector, runInInjectionContext } from '@angular/co
 import { Database, ref, push, set, get, update, onValue, query, orderByChild, endBefore, startAfter, limitToLast, limitToFirst, endAt, onChildAdded } from '@angular/fire/database';
 import { AuthService } from '../../auth/services/auth.service';
 import { Chat, Message } from '../interfaces/chat.interface';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject, Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -14,6 +14,7 @@ export class ChatService {
 
   // --- Estado del Chat Activo (Infinite Scroll) ---
   public activeChatMessages$ = new BehaviorSubject<(Message & { id: string, isFirstUnread?: boolean })[]>([]);
+  public messageSent$ = new Subject<{chatId: string}>();
   public hasMoreOlder = true;
   public hasMoreNewer = true;
   private currentChatId: string | null = null;
@@ -24,10 +25,10 @@ export class ChatService {
   // ------------------------------------------------
 
   /**
-   * Crea un chat directo entre el usuario actual y otro usuario si no existe,
+   * Crea un chat entre el usuario actual y otro usuario (o bot) si no existe,
    * o devuelve el ID del chat si ya existía previamente.
    */
-  async createOrGetDirectChat(otherUserId: string): Promise<string> {
+  async createOrGetDirectChat(otherUserId: string, chatType: 'direct_chat' | 'ai_chat' = 'direct_chat'): Promise<string> {
     const currentUser = this.authService.userData;
     if (!currentUser) throw new Error('Usuario no logueado');
 
@@ -45,7 +46,7 @@ export class ChatService {
           const chatSnap = await get(ref(this.db, `chats/${chatId}`));
           if (chatSnap.exists()) {
             const chat = chatSnap.val() as Chat;
-            if (chat.type === 'direct_chat' && chat.participantIds.includes(otherUserId)) {
+            if (chat.type === chatType && chat.participantIds.includes(otherUserId)) {
               existingChatId = chatId;
               break;
             }
@@ -60,7 +61,7 @@ export class ChatService {
       const chatsRef = ref(this.db, 'chats');
       const newChatRef = push(chatsRef);
       const newChat: Chat = {
-        type: 'direct_chat',
+        type: chatType,
         participantIds: [currentUser.uid, otherUserId],
         updatedAt: Date.now()
       };
@@ -131,7 +132,7 @@ export class ChatService {
                     otherUserAvatar: null 
                   };
                   
-                  if (chat.type === 'direct_chat') {
+                  if (chat.type === 'direct_chat' || chat.type === 'ai_chat') {
                     const otherUid = chat.participantIds.find(id => id !== currentUser.uid);
                     if (otherUid) {
                       const userSnap = await get(ref(this.db, `users/${otherUid}`));
@@ -141,9 +142,6 @@ export class ChatService {
                         chatObj.otherUserAvatar = user.photoURL || null;
                       }
                     }
-                  } else if (chat.type === 'ai_chat') {
-                    chatObj.otherUserName = 'Gemini AI';
-                    // La IA usará el appIcon.png por defecto en el HTML
                   }
                   
                   if (chat.lastMessage) {
@@ -437,6 +435,46 @@ export class ChatService {
         }
 
         // Ejecutamos todos los cambios a la vez de forma atómica
+        await update(ref(this.db), updates);
+        
+        // Emitimos el evento de que el usuario ha mandado un mensaje
+        this.messageSent$.next({ chatId });
+      }
+    });
+  }
+
+  /**
+   * Envía un mensaje a la base de datos en nombre de un Bot (IA).
+   */
+  async sendBotMessage(chatId: string, text: string, botUid: string): Promise<void> {
+    return runInInjectionContext(this.injector, async () => {
+      const messagesRef = ref(this.db, `messages/${chatId}`);
+      const newMessageRef = push(messagesRef);
+
+      const message: Message = {
+        senderId: botUid,
+        text,
+        timestamp: Date.now(),
+        type: 'text'
+      };
+
+      const chatSnap = await get(ref(this.db, `chats/${chatId}`));
+      if (chatSnap.exists()) {
+        const chat = chatSnap.val() as Chat;
+        
+        const updates: Record<string, any> = {
+          [`messages/${chatId}/${newMessageRef.key}`]: message,
+          [`chats/${chatId}/lastMessage`]: text,
+          [`chats/${chatId}/lastMessageSenderId`]: botUid,
+          [`chats/${chatId}/updatedAt`]: Date.now()
+        };
+        
+        if (chat.participantIds) {
+          chat.participantIds.forEach(uid => {
+            updates[`userChats/${uid}/${chatId}/active`] = true;
+          });
+        }
+
         await update(ref(this.db), updates);
       }
     });

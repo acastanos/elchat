@@ -124,12 +124,16 @@ Dado que se usa Firebase JS SDK en lugar de API REST clásica, definimos el "con
     *   Escribe un nuevo nodo push en `/messages/{chatId}`.
     *   Actualiza `lastMessage` y `lastUpdated` en `/chats/{chatId}`.
 
-### C. AIService (`src/app/chat/services/ai.service.ts`)
-*   **`generateResponse(chatHistory: Message[]): Promise<string>`**
+### C. AIService y AiOrchestratorService (`src/app/chat/services/ai.service.ts`)
+Para cumplir con los requisitos de la Fase 4, la capa de Inteligencia Artificial se dividirá lógicamente en:
+*   **AiOrchestratorService**: Evaluado en el arranque de la app.
+    *   Verifica la existencia de los chats contra los UID `ai_mama` y `ai_churri`. Si no existen, los crea en `/users` y genera el chat.
+    *   Contiene el array estático de 12 frases *hardcodeadas* de "Mamá". Lanza la frase correspondiente al detectar el evento de entrada en la app.
+*   **AiService**: Servicio puro de conexión HTTP.
+    *   **`generateResponse(chatHistory: Message[], botType: 'mama' | 'churri'): Promise<string>`**
+    *   Inyecta en la cabecera un *System Prompt* robusto forzando el lenguaje neutral y el tono jocoso correspondiente al `botType`.
     *   *Endpoint Externo:* `POST https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent`
-    *   *Body:* Array de mensajes previos (contexto).
-    *   *Respuesta:* Texto generado por la IA.
-    *   *Flujo:* Esta llamada se activa *después* de que el usuario envíe un mensaje a un chat de tipo `'ai'`. Tras recibir la respuesta HTTP, el servicio llamará a `sendMessage` pasándose por la IA.
+    *   *Flujo:* Esta llamada se activa *después* de que el usuario envíe un mensaje. Tras la respuesta, se llamará a `sendMessage` pasándose por el UID de la IA.
 
 ---
 
@@ -148,10 +152,11 @@ Las fases marcan la hoja de ruta evolutiva del proyecto (Alineadas con `task.md`
     *   Crear la base de datos de usuarios y buscador para iniciar chats.
     *   UI de mensajería (burbujas).
     *   Lógica de `Infinite Scroll` de Ionic paginando de 10 en 10 hacia atrás.
-4.  **Fase 4: Integración de IA (Gemini)**
-    *   Inicialización de Gemini.
-    *   Chat autogenerado de IA en perfiles nuevos.
-    *   Lógica de respuesta con Spinner ("IA escribiendo...").
+4.  **Fase 4: Integración de IA (Gemini - Perfiles Mama/Churri)**
+    *   Creación del AiOrchestratorService para inicializar los perfiles `ai_mama` y `ai_churri` para todos los usuarios.
+    *   Lógica de mensajes automáticos locales (sin API) al entrar en la app para el perfil "Mamá".
+    *   Llamadas HTTP a la API de Gemini con los System Prompts sin género e historial de chat.
+    *   Lógica de respuesta visual con Spinner ("Escribiendo...").
 5.  **Fase 5: Revisión y Testing Final**
     *   Llegar al 80% de cobertura de código.
     *   Comprobación en emuladores / Web.

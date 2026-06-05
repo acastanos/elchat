@@ -7,7 +7,7 @@ import {
   authState,
   updateProfile,
   GoogleAuthProvider,
-  signInWithRedirect,
+  signInWithPopup,
   getRedirectResult
 } from '@angular/fire/auth';
 import { Database, ref, set, get, child } from '@angular/fire/database';
@@ -83,6 +83,7 @@ export class AuthService {
         email: user.email,
         name: name,
         nameLowercase: name.toLowerCase(),
+        photoURL: 'https://ionicframework.com/docs/img/demos/avatar.svg',
         role: 'user'
       });
     } catch (error) {
@@ -110,9 +111,23 @@ export class AuthService {
   async loginWithGoogle(): Promise<void> {
     try {
       const provider = new GoogleAuthProvider();
-      // Usamos redirect en lugar de popup para evitar bloqueos en navegadores móviles (ej. Chrome en iOS)
-      await signInWithRedirect(this.auth, provider);
-      // El navegador redirigirá, y a la vuelta se manejará en handleRedirectResult()
+      const userCredential = await signInWithPopup(this.auth, provider);
+      const user = userCredential.user;
+      
+      const dbRef = ref(this.db);
+      const snapshot = await get(child(dbRef, `users/${user.uid}`));
+      
+      if (!snapshot.exists()) {
+        const displayName = user.displayName || 'Usuario de Google';
+        await this.saveUserToDatabase({
+          uid: user.uid,
+          email: user.email,
+          name: displayName,
+          nameLowercase: displayName.toLowerCase(),
+          photoURL: user.photoURL || '',
+          role: 'user'
+        });
+      }
     } catch (error) {
       console.error('Error durante el login con Google:', error);
       throw error;

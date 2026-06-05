@@ -127,8 +127,10 @@ export class LoginComponent implements OnInit, OnDestroy {
     
     try {
       await this.authService.loginWithGoogle();
-      // Como usamos signInWithRedirect, la página recargará e irá a Google.
-      // El ruteo final a /chat se encarga ngOnInit() cuando vuelva la sesión de Google.
+      this.ngZone.run(() => {
+        this.isLoading = false;
+        this.router.navigate(['/chat']);
+      });
     } catch (error: any) {
       this.ngZone.run(() => {
         this.errorMessage = 'Error al iniciar sesión con Google.';

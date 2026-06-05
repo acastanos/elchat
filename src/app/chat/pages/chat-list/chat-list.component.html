@@ -82,10 +82,10 @@
     <ion-item-sliding class="chat-card-sliding">
       <ion-item button lines="none" (click)="openChat(chat.id)" class="chat-card-item">
         <ion-avatar slot="start">
-          <img [src]="chat.type === 'ai_chat' ? 'assets/icon/appIcon.png' : (chat.otherUserAvatar || 'assets/icon/appIcon.png')" alt="Avatar del chat">
+          <img [src]="chat.otherUserAvatar || 'assets/icon/appIcon.png'" alt="Avatar del chat">
         </ion-avatar>
         <ion-label>
-          <h2>{{ chat.type === 'ai_chat' ? 'Gemini AI' : chat.otherUserName }}</h2>
+          <h2>{{ chat.otherUserName }}</h2>
           <p>{{ chat.displayLastMessage }}</p>
         </ion-label>
       </ion-item>

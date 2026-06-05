@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
+
+import { AiOrchestratorService } from './chat/services/ai-orchestrator.service';
 
 @Component({
   selector: 'app-root',
@@ -7,5 +9,7 @@ import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
   imports: [IonApp, IonRouterOutlet],
 })
 export class AppComponent {
+  private aiOrchestrator = inject(AiOrchestratorService);
+
   constructor() {}
 }

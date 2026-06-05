@@ -51,6 +51,15 @@
           <p>Aún no hay mensajes. ¡Escribe el primero!</p>
         </div>
       }
+
+      <!-- Indicador de que la IA está escribiendo -->
+      @if (isAiTyping) {
+        <div class="message-wrapper received">
+          <div class="message-bubble" style="background: transparent; border: 1px solid rgba(255,255,255,0.2);">
+            <ion-spinner name="dots" style="width: 24px; height: 16px; margin: 0 auto; display: block;"></ion-spinner>
+          </div>
+        </div>
+      }
     </div>
   }
 

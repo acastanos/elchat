@@ -28,15 +28,18 @@ Aplicación de mensajería instantánea para plataformas iOS y Android, desarrol
 *   **Validación de Entrada**: Uso de **Formularios Reactivos (Reactive Forms)** en Angular para la caja de texto.
 *   **Geolocalización:** Los mensajes se enviarán con la posición geográfica (latitud y longitud) del remitente utilizando el plugin nativo de Capacitor.
 
-### 3.3. Interacción con IA (Auto-Respuesta en Chats Predefinidos)
-La Inteligencia Artificial **solo estará activa en unos chats predefinidos** (ej. "Asistente Virtual") que todos los usuarios tendrán por defecto al registrarse. Los chats privados entre dos humanos no tendrán intervención de la IA.
+### 3.3. Interacción con IA (Perfiles "Mamá" y "Mi amor churri")
+La Inteligencia Artificial se integra a través de dos **chats predefinidos** que todos los usuarios tendrán activos obligatoriamente. El objetivo es dar un tono "jugoso" y divertido a la app.
+*   **Condición Crítica**: La IA no conoce el género del usuario, por lo que todas sus respuestas (y los mensajes predefinidos) usarán lenguaje genérico o neutral.
+*   **Perfil "Mamá"**: Actuará como la típica madre. Además de interactuar, enviará un mensaje automático sin consumir la API (elegido aleatoriamente de un array de 10-12 frases preparadas) "cada vez que el usuario entre en la app" (ej: "Tenías mala cara ayer", "Te estás quedando en los huesos"). Si el usuario responde, entrará en juego el modelo de IA bajo la premisa: *"qué diría una madre a su hijo/a"*.
+*   **Perfil "Mi amor churri"**: Actuará como la pareja del usuario (se definirá más a fondo tras finalizar a "Mamá").
+
 Para los chats de IA, el flujo gestionado en el cliente será:
-1. El usuario envía un mensaje.
-2. El mensaje del usuario se almacena en Realtime Database.
+1. El sistema puede enviar mensajes automáticamente (ej. Mamá al inicio).
+2. Si el usuario responde, el mensaje se guarda en Firebase.
 3. La interfaz muestra un indicador visual (spinner o burbuja de "IA escribiendo...").
-4. La App solicita la respuesta al modelo de IA.
-5. Una vez generada la respuesta (el propio tiempo que tarda en generarse actúa como demora natural), el mensaje de la IA se almacena en Realtime Database.
-6. El indicador visual desaparece y el mensaje de la IA aparece en el chat en tiempo real.
+4. La App solicita la respuesta al modelo de IA inyectando el historial y el System Prompt correspondiente.
+5. El mensaje de la IA se almacena en Realtime Database simulando una respuesta humana natural.
 
 ---
 
@@ -60,14 +63,13 @@ Dado que el objetivo es mantener un desarrollo ágil y utilizar un modelo gratui
 
 1.  **Registro/Login**: El usuario se registra (Email/Pass/Nombre) o entra con Gmail. Se guarda/recupera su perfil en `/users/{userId}`.
 2.  **Lista de Chats y Búsqueda**: El usuario ve sus chats activos (incluyendo el chat predefinido de IA). Puede usar un buscador para localizar a otro usuario por su nombre e iniciar un chat 1-a-1.
-3.  **Chat en Vivo con IA (Solo chat predefinido)**:
-    *   El usuario envía un mensaje (ej. *"Hola"*).
-    *   El mensaje se guarda en Firebase Realtime DB y aparece en el chat.
-    *   Aparece un *spinner* indicando *"La IA está escribiendo..."*.
-    *   La app llama a la API de Gemini enviando el historial.
-    *   Gemini responde (ej. *"¡Hola! ¿En qué te ayudo hoy?"*).
-    *   La app oculta el *spinner* y guarda la respuesta de Gemini en Firebase.
-    *   La interfaz se actualiza automáticamente mostrando el nuevo mensaje gracias a la suscripción en tiempo real de Firebase.
+3.  **Chat con IA (Mamá / Mi amor churri)**:
+    *   **Automático**: Al entrar en la app, el sistema evalúa si "Mamá" debe hablar e inserta un mensaje aleatorio en nombre de la IA.
+    *   **Conversacional**: El usuario envía un mensaje a uno de estos bots.
+    *   El mensaje se guarda y aparece en el chat.
+    *   Aparece un *spinner* indicando *"Escribiendo..."*.
+    *   La app llama a la API de Gemini enviando el historial y el prompt ("Actúa como una madre intensa que no sabe el género de su hijo...").
+    *   Gemini responde y la app guarda la respuesta en Firebase como si la IA fuera el remitente.
 
 ---
 

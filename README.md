@@ -46,13 +46,22 @@ Para ejecutar este proyecto en tu propia máquina, necesitarás tener instalado 
    npm install
    ```
 
-3. **Arrancar el servidor de desarrollo:**
+3. **Arrancar el entorno de desarrollo:**
+   Para evitar problemas de CORS y simular el backend *Serverless*, usamos dos terminales simultáneas:
+
+   **Terminal 1 (Backend - Netlify):**
+   ```bash
+   netlify dev
+   ```
+   *Esto arranca el proxy seguro de las funciones de IA en el puerto 8888.*
+
+   **Terminal 2 (Frontend - Angular):**
    ```bash
    npm start
    ```
-   *Alternativa si tienes Ionic CLI instalado globalmente: `ionic serve`*
+   *Esto compila Angular y lo sirve en el puerto 4200.*
 
-4. **Navegador:** La aplicación se abrirá automáticamente en `http://localhost:4200` (o `8100`).
+4. **Navegador:** La aplicación se abrirá en `http://localhost:4200`. Todas las peticiones a `/api` o `/.netlify` serán redirigidas automáticamente al servidor de Netlify.
 
 ---
 
@@ -67,8 +76,9 @@ Si ejecutas el proyecto sin este archivo, Angular lanzará un error de compilaci
 Para poder ejecutar la app correctamente y conectarla a la base de datos de pruebas, necesitas contactar con el administrador del repositorio:
 
 1. Escribe a **[@acastanos](https://github.com/acastanos)** o abre una *Issue* solicitando acceso de desarrollador.
-2. Una vez proporcionadas, deberás crear el archivo `src/environments/environment.ts` e introducir la configuración proporcionada:
+2. Necesitarás crear **dos** archivos en tu entorno local:
 
+**Archivo 1: `src/environments/environment.ts` (Firebase Frontend)**
 ```typescript
 export const environment = {
   production: false,
@@ -81,9 +91,13 @@ export const environment = {
     authDomain: '...',
     messagingSenderId: '...',
     measurementId: '...'
-  },
-  geminiApiKey: '...' // Clave para la IA
+  }
 };
+```
+
+**Archivo 2: `.env` (en la raíz del proyecto para Netlify Backend)**
+```env
+GEMINI_API_KEY=tu_clave_de_google_ai_studio
 ```
 
 ---

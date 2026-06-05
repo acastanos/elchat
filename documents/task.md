@@ -22,11 +22,14 @@
 - [x] Añadir funcionalidad de **Rol Administrador** (Settings) para limpiar base de datos y forzar no leídos.
 
 ## 4. Integración de IA (Gemini)
-- [ ] Implementar Servicio de IA que consuma la API de Google Gemini (`chat/services/ai.service.ts` o en `shared/services/`).
-- [ ] Configurar la creación automática de "Chats Predefinidos de IA" para los usuarios nuevos.
-- [ ] Añadir la lógica del spinner "IA escribiendo..." exclusivo para los chats marcados como `ai_chat`.
-- [ ] Conectar el envío del mensaje con la petición a Gemini solo dentro del chat predefinido.
-- [ ] Pruebas unitarias para el servicio de IA y el comportamiento condicional del spinner.
+- [x] Crear el servicio Orquestador (`AiOrchestratorService`) para auto-crear los perfiles "Mamá" y "Mi amor churri" para todos los usuarios.
+- [x] Implementar la lógica de "Mensajes Automáticos" de "Mamá" (Array de 10-12 mensajes aleatorios) enviados cada vez que el usuario entre en la app.
+- [x] Construir un Backend Seguro (`netlify/functions/gemini.js`) para aislar la API Key de Google.
+- [x] Implementar Servicio de IA (`AiService`) que consuma nuestra propia Netlify Function.
+- [x] Definir los System Prompts para garantizar respuestas genéricas (sin marcas de género) y con el tono humorístico/intenso requerido.
+- [x] Añadir la lógica del spinner "IA escribiendo..." exclusivo para los chats marcados como bots.
+- [x] Conectar el envío del mensaje con la petición a Gemini solo dentro de estos chats predefinidos.
+- [ ] Pruebas unitarias para el servicio de IA y el comportamiento condicional.
 
 ## 5. Revisión y Testing Final
 - [x] Configurar Karma/Jasmine para la cobertura de código.
