@@ -5,3 +5,15 @@
 [build]
   command = "npm run build"
   publish = "www"
+
+# Regla para asegurar que Netlify Functions funcione correctamente si cambian las rutas
+[[redirects]]
+  from = "/.netlify/functions/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# Regla imprescindible para SPAs (Angular): redirigir todo el tráfico que no sea un archivo a index.html
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
