@@ -33,31 +33,54 @@ exports.handler = async function (event, context) {
     };
   }
 
-  try {
-    // Angular (AiService) ya ha preparado el body con el formato exacto de Gemini
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`;
-    
-    // Llamamos a Gemini usando el fetch nativo de Node.js (Node 18+)
-    const response = await fetch(geminiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: event.body
-    });
+  const modelsToTry = ['gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3.8-flash', 'gemini-flash-latest'];
+  let lastResponse = null;
+  let lastData = null;
 
-    const data = await response.json();
+  for (const model of modelsToTry) {
+    try {
+      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      
+      const response = await fetch(geminiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: event.body
+      });
 
-    return {
-      statusCode: response.status,
-      headers,
-      body: JSON.stringify(data)
-    };
-  } catch (error) {
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({ error: error.message || 'Error interno del servidor Proxy' })
-    };
+      const data = await response.json();
+      lastResponse = response;
+      lastData = data;
+
+      if (response.ok) {
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify(data)
+        };
+      }
+
+      // Si el modelo está experimentando alta demanda (503) o límite de frecuencia (429), reintentamos con el siguiente modelo
+      if (response.status === 503 || response.status === 429) {
+        console.warn(`Modelo ${model} ocupado (${response.status}). Probando el siguiente modelo...`);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        continue;
+      }
+
+      return {
+        statusCode: response.status,
+        headers,
+        body: JSON.stringify(data)
+      };
+    } catch (error) {
+      console.error(`Error de red al llamar a ${model}:`, error);
+    }
   }
+
+  return {
+    statusCode: lastResponse ? lastResponse.status : 500,
+    headers,
+    body: JSON.stringify(lastData || { error: 'Error interno del servidor Proxy al contactar con Gemini' })
+  };
 };
