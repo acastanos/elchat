@@ -133,7 +133,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       });
     } catch (error: any) {
       this.ngZone.run(() => {
-        this.errorMessage = 'Error al iniciar sesión con Google.';
+        this.errorMessage = error.message || 'Error al iniciar sesión con Google.';
         this.isLoading = false;
       });
     }

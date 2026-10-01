@@ -13,6 +13,7 @@ import {
 import { Database, ref, set, get, child } from '@angular/fire/database';
 import { Observable } from 'rxjs';
 import { User as FirebaseUser } from '@angular/fire/auth';
+import { Capacitor } from '@capacitor/core';
 
 @Injectable({
   providedIn: 'root'
@@ -31,7 +32,9 @@ export class AuthService {
     this.userState$.subscribe((user) => {
       this.userData = user;
     });
-    this.handleRedirectResult();
+    if (!Capacitor.isNativePlatform()) {
+      this.handleRedirectResult();
+    }
   }
 
   private async handleRedirectResult() {
@@ -109,6 +112,9 @@ export class AuthService {
    * Si es la primera vez que entra, crea su perfil en Realtime Database.
    */
   async loginWithGoogle(): Promise<void> {
+    if (Capacitor.isNativePlatform()) {
+      throw new Error('El inicio de sesión con Google no está disponible en la versión nativa de iOS/Android. Por favor, regístrate o inicia sesión con correo y contraseña.');
+    }
     try {
       const provider = new GoogleAuthProvider();
       const userCredential = await signInWithPopup(this.auth, provider);

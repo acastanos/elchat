@@ -85,10 +85,10 @@ export class AiOrchestratorService {
     
     if (chat) {
       const now = Date.now();
-      const fourHoursInMs = 4 * 60 * 60 * 1000;
+      const oneHourInMs = 1 * 60 * 60 * 1000;
       
       // Si nunca han hablado (no hay updatedAt) o si ha pasado el cooldown (4 horas sin actividad en el chat)
-      if (!chat.updatedAt || (now - chat.updatedAt) > fourHoursInMs) {
+      if (!chat.updatedAt || (now - chat.updatedAt) > oneHourInMs) {
         
         // Evitamos que Mamá hable si el último mensaje ya es de ella y el usuario no le ha respondido.
         if (chat.lastMessageSenderId !== 'ai_mama') {
